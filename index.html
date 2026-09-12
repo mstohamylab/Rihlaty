@@ -1,0 +1,1012 @@
+<title>Rihlaty</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#EDE6D6;
+    --surface:#FFFFFF;
+    --surface-2:#F6F1E4;
+    --ink:#211D16;
+    --ink-soft:#5B5546;
+    --muted:#8C8371;
+    --line:rgba(33,29,22,.13);
+    --teal:#0E5C53;
+    --teal-strong:#0A423B;
+    --teal-tint:#E1EDE9;
+    --gold:#93731F;
+    --gold-tint:#EFE1B8;
+    --rose:#A6503A;
+    --rose-tint:#F1E1DA;
+    --shadow:0 20px 45px -26px rgba(20,17,8,.5);
+    --bezel:#1C1911;
+    --bezel-edge:#38321F;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#14120D; --surface:#1E1B14; --surface-2:#242019;
+      --ink:#F1EAD9; --ink-soft:#C9C0AC; --muted:#8F8672;
+      --line:rgba(241,234,217,.14);
+      --teal:#4CB0A2; --teal-strong:#6BC8BA; --teal-tint:#1B2E2A;
+      --gold:#D8B65B; --gold-tint:#3A3220;
+      --rose:#D28569; --rose-tint:#37241D;
+      --shadow:0 20px 45px -20px rgba(0,0,0,.65);
+      --bezel:#0B0A07; --bezel-edge:#2A2518;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14120D; --surface:#1E1B14; --surface-2:#242019;
+    --ink:#F1EAD9; --ink-soft:#C9C0AC; --muted:#8F8672;
+    --line:rgba(241,234,217,.14);
+    --teal:#4CB0A2; --teal-strong:#6BC8BA; --teal-tint:#1B2E2A;
+    --gold:#D8B65B; --gold-tint:#3A3220;
+    --rose:#D28569; --rose-tint:#37241D;
+    --shadow:0 20px 45px -20px rgba(0,0,0,.65);
+    --bezel:#0B0A07; --bezel-edge:#2A2518;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    padding:clamp(20px,4vw,56px) 20px;
+  }
+  h1,h2,h3{ font-family:'Markazi Text','IBM Plex Sans Arabic',serif; text-wrap:balance; margin:0; font-weight:700; }
+  p{ margin:0; }
+  button{ font-family:inherit; }
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+
+  .wrap{ max-width:1140px; margin:0 auto; }
+  .top{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    margin-bottom:clamp(28px,5vw,48px); flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand svg{ width:30px; height:30px; flex:none; }
+  .brand span{ font-family:'Markazi Text','IBM Plex Sans Arabic',serif; font-size:1.5rem; font-weight:700; letter-spacing:.02em; }
+  .brand small{ display:block; font-family:'IBM Plex Sans',sans-serif; font-size:.68rem; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; font-weight:600; }
+
+  .toggles{ display:flex; gap:8px; }
+  .pill-btn{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft);
+    border-radius:999px; padding:8px 14px; font-size:.8rem; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; gap:6px; transition:border-color .15s, color .15s, background .15s;
+  }
+  .pill-btn:hover{ border-color:var(--teal); color:var(--teal); }
+  .pill-btn:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
+  .pill-btn[aria-pressed="true"]{ background:var(--teal); border-color:var(--teal); color:#fff; }
+  .pill-btn svg{ width:14px; height:14px; }
+
+  .layout{
+    display:grid; grid-template-columns:1fr; gap:clamp(28px,5vw,64px);
+    align-items:start;
+  }
+  @media (min-width:920px){
+    .layout{ grid-template-columns:1fr minmax(320px,380px); }
+  }
+
+  .intro{ padding-top:6px; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px; font-size:.72rem; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--teal); margin-bottom:14px;
+  }
+  .eyebrow::before{ content:""; width:18px; height:1px; background:var(--teal); }
+  .intro h2{ font-size:clamp(2rem,4vw,2.9rem); line-height:1.05; margin-bottom:16px; }
+  .intro h2 em{ font-style:normal; color:var(--teal); }
+  .intro p.lede{ font-size:1.05rem; color:var(--ink-soft); max-width:56ch; line-height:1.6; margin-bottom:26px; }
+
+  .feature-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-bottom:28px; }
+  .feature-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .feature-card .ic{
+    width:34px; height:34px; border-radius:10px; background:var(--teal-tint); color:var(--teal);
+    display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .feature-card .ic svg{ width:18px; height:18px; }
+  .feature-card h3{ font-size:.95rem; font-family:'IBM Plex Sans',sans-serif; font-weight:600; }
+  .feature-card p{ font-size:.82rem; color:var(--muted); line-height:1.45; }
+
+  .meta-strip{
+    display:flex; flex-wrap:wrap; gap:22px; padding-top:20px; border-top:1px solid var(--line);
+  }
+  .meta-strip div{ display:flex; flex-direction:column; gap:2px; }
+  .meta-strip .num{ font-family:'Markazi Text',serif; font-weight:700; font-size:1.5rem; color:var(--teal); font-variant-numeric:tabular-nums; }
+  .meta-strip .lbl{ font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+
+  /* ---- phone ---- */
+  .stage{ display:flex; justify-content:center; }
+  .phone{
+    width:clamp(272px,80vw,362px);
+    background:var(--bezel);
+    border-radius:46px;
+    padding:14px;
+    box-shadow:var(--shadow), inset 0 0 0 1px var(--bezel-edge);
+    position:sticky; top:24px;
+  }
+  .phone-notch{
+    position:absolute; left:50%; top:14px; transform:translateX(-50%);
+    width:84px; height:20px; background:var(--bezel); border-radius:0 0 14px 14px; z-index:5;
+  }
+  .phone-notch::after{
+    content:""; position:absolute; right:14px; top:6px; width:8px; height:8px; border-radius:50%;
+    background:var(--bezel-edge);
+  }
+  .screen{
+    position:relative; background:var(--surface); border-radius:32px; overflow:hidden;
+    aspect-ratio:365/760; display:flex; flex-direction:column;
+    font-family:'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;
+  }
+  [dir="rtl"] .screen{ font-family:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif; }
+  .screen.a11y-large{ font-size:1.14em; }
+
+  .statusbar{
+    display:flex; align-items:center; justify-content:space-between; padding:10px 22px 4px;
+    font-size:.72rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); flex:none;
+  }
+  .statusbar .icons{ display:flex; gap:5px; align-items:center; }
+  .statusbar svg{ width:15px; height:11px; }
+
+  .app-header{
+    display:flex; align-items:center; justify-content:space-between; padding:6px 18px 12px; flex:none;
+    border-bottom:1px solid var(--line);
+  }
+  .app-header .greet h2{ font-size:1.2rem; line-height:1.15; }
+  .app-header .greet p{ font-size:.72rem; color:var(--muted); margin-top:2px; }
+  .header-actions{ display:flex; gap:6px; }
+  .icon-btn{
+    width:30px; height:30px; border-radius:9px; border:1px solid var(--line); background:var(--surface-2);
+    color:var(--ink-soft); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;
+  }
+  .icon-btn svg{ width:15px; height:15px; }
+  .icon-btn:focus-visible{ outline:2px solid var(--teal); outline-offset:1px; }
+  .icon-btn[aria-pressed="true"]{ background:var(--teal); border-color:var(--teal); color:#fff; }
+
+  .body{ flex:1; overflow-y:auto; padding:14px 18px 10px; position:relative; }
+  .body::-webkit-scrollbar{ width:0; }
+
+  .section-title{
+    font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+    margin:16px 0 8px;
+  }
+  .section-title:first-child{ margin-top:2px; }
+
+  .bottomnav{
+    display:flex; flex:none; border-top:1px solid var(--line); background:var(--surface); padding:8px 6px 12px;
+  }
+  .navbtn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none;
+    color:var(--muted); cursor:pointer; padding:4px 2px; border-radius:10px;
+  }
+  .navbtn svg{ width:19px; height:19px; }
+  .navbtn span{ font-size:.62rem; font-weight:600; }
+  .navbtn[aria-current="true"]{ color:var(--teal); }
+  .navbtn:focus-visible{ outline:2px solid var(--teal); outline-offset:1px; }
+
+  [hidden]{ display:none !important; }
+
+  /* map illustration */
+  .map-card{
+    border-radius:18px; overflow:hidden; border:1px solid var(--line); background:var(--surface-2); position:relative;
+  }
+  .map-illust{ width:100%; height:150px; display:block; }
+  .layer-switch{
+    position:absolute; top:10px; inset-inline-end:10px; display:flex; background:rgba(0,0,0,.35);
+    border-radius:999px; padding:3px; backdrop-filter:blur(2px);
+  }
+  .layer-switch button{
+    border:none; background:none; color:#fff; font-size:.68rem; font-weight:700; padding:5px 10px; border-radius:999px; cursor:pointer;
+    opacity:.75;
+  }
+  .layer-switch button[aria-pressed="true"]{ background:#fff; color:var(--ink); opacity:1; }
+  .map-caption{ padding:10px 14px 12px; }
+  .map-caption p{ font-size:.72rem; color:var(--muted); }
+  .map-caption strong{ font-size:.85rem; }
+
+  .pin-row{
+    display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line);
+  }
+  .pin-row:last-child{ border-bottom:none; }
+  .pin-dot{
+    width:34px; height:34px; border-radius:10px; background:var(--gold-tint); color:var(--gold);
+    display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .pin-dot svg{ width:16px; height:16px; }
+  .pin-info{ flex:1; min-width:0; }
+  .pin-info strong{ display:block; font-size:.84rem; }
+  .pin-info span{ font-size:.72rem; color:var(--muted); }
+  .pin-dist{ font-size:.68rem; color:var(--muted); font-weight:600; white-space:nowrap; }
+
+  .cta-btn{
+    width:100%; border:none; border-radius:14px; background:var(--teal); color:#fff; font-weight:700;
+    font-size:.86rem; padding:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-top:12px;
+  }
+  .cta-btn:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+  .cta-btn svg{ width:15px; height:15px; }
+  .cta-btn.ghost{ background:none; border:1px solid var(--line); color:var(--ink-soft); }
+
+  /* toast */
+  .toast{
+    position:absolute; top:8px; left:10px; right:10px; background:var(--ink); color:var(--bg);
+    border-radius:14px; padding:11px 13px; display:flex; gap:10px; align-items:flex-start; z-index:20;
+    box-shadow:0 12px 24px -10px rgba(0,0,0,.5);
+    transform:translateY(-140%); transition:transform .35s ease;
+  }
+  .toast.show{ transform:translateY(0); }
+  .toast .ic{ width:26px; height:26px; border-radius:8px; background:var(--teal); flex:none; display:flex; align-items:center; justify-content:center; }
+  .toast .ic svg{ width:13px; height:13px; color:#fff; }
+  .toast strong{ font-size:.78rem; display:block; }
+  .toast p{ font-size:.7rem; opacity:.8; margin-top:2px; }
+
+  /* discover list */
+  .site-card{
+    display:flex; gap:12px; padding:12px; border:1px solid var(--line); border-radius:16px; margin-bottom:10px;
+    background:var(--surface); cursor:pointer; text-align:start; width:100%;
+  }
+  .site-card:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
+  .site-thumb{
+    width:56px; height:56px; border-radius:12px; flex:none; overflow:hidden; background:var(--teal-tint);
+  }
+  .site-thumb svg{ width:100%; height:100%; }
+  .site-body{ flex:1; min-width:0; }
+  .site-body h3{ font-size:.9rem; font-family:'IBM Plex Sans',sans-serif; font-weight:600; }
+  .site-body p{ font-size:.74rem; color:var(--muted); margin-top:3px; line-height:1.4; }
+  .tag-row{ display:flex; gap:5px; margin-top:6px; flex-wrap:wrap; }
+  .tag{ font-size:.62rem; font-weight:700; padding:3px 7px; border-radius:999px; letter-spacing:.02em; }
+  .tag.era{ background:var(--gold-tint); color:var(--gold); }
+  .tag.voice{ background:var(--rose-tint); color:var(--rose); }
+
+  .sponsored{
+    border:1px dashed var(--line); border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; margin-top:6px;
+  }
+  .sponsored .site-thumb{ background:var(--rose-tint); }
+  .sponsored-label{ font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+
+  /* detail overlay */
+  .overlay{
+    position:absolute; inset:0; background:var(--surface); z-index:30; display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform .3s ease;
+  }
+  [dir="rtl"] .overlay{ transform:translateX(-100%); }
+  .overlay.open{ transform:translateX(0); }
+  .overlay-head{
+    display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line); flex:none;
+  }
+  .overlay-head h2{ font-size:1rem; font-family:'IBM Plex Sans',sans-serif; font-weight:600; flex:1; }
+  .overlay-body{ flex:1; overflow-y:auto; padding:14px 16px 20px; }
+
+  .compare{
+    position:relative; border-radius:16px; overflow:hidden; aspect-ratio:16/10; border:1px solid var(--line);
+  }
+  .compare .layer{ position:absolute; inset:0; }
+  .compare .layer img, .compare .layer svg{ width:100%; height:100%; display:block; }
+  .compare .layer.present{ clip-path:inset(0 0 0 var(--pos,50%)); }
+  .compare .handle{
+    position:absolute; top:0; bottom:0; left:var(--pos,50%); width:2px; background:#fff;
+    box-shadow:0 0 0 1px rgba(0,0,0,.2);
+  }
+  .compare .handle::after{
+    content:"⇔"; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:26px; height:26px; background:#fff; color:var(--ink); border-radius:50%; font-size:.7rem;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,.25);
+  }
+  .compare-tag{ position:absolute; bottom:8px; font-size:.62rem; font-weight:700; padding:3px 8px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; }
+  .compare-tag.left{ left:8px; } .compare-tag.right{ right:8px; }
+  input.slider{
+    width:100%; margin-top:10px; accent-color:var(--teal); cursor:pointer;
+  }
+
+  .audio-card{
+    display:flex; align-items:center; gap:12px; background:var(--surface-2); border-radius:16px; padding:12px; margin-top:14px;
+  }
+  .avatar{
+    width:44px; height:44px; border-radius:50%; background:var(--teal); color:#fff; display:flex; align-items:center;
+    justify-content:center; font-weight:700; font-size:.85rem; flex:none;
+  }
+  .audio-mid{ flex:1; min-width:0; }
+  .audio-mid strong{ font-size:.8rem; display:block; }
+  .audio-mid span{ font-size:.68rem; color:var(--muted); }
+  .wave{ display:flex; align-items:flex-end; gap:2px; height:16px; margin-top:5px; }
+  .wave i{ width:2.5px; background:var(--teal); border-radius:2px; height:30%; opacity:.5; }
+  .wave.playing i{ animation:bar 1s ease-in-out infinite; opacity:1; }
+  .wave i:nth-child(2n){ animation-delay:.15s; } .wave i:nth-child(3n){ animation-delay:.3s; }
+  @keyframes bar{ 0%,100%{ height:25%; } 50%{ height:90%; } }
+  .play-btn{
+    width:36px; height:36px; border-radius:50%; border:none; background:var(--teal); color:#fff; flex:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .play-btn svg{ width:14px; height:14px; }
+
+  .lede-text{ font-size:.82rem; line-height:1.6; color:var(--ink-soft); margin-top:14px; }
+  .fine{ font-size:.66rem; color:var(--muted); margin-top:12px; line-height:1.5; border-top:1px solid var(--line); padding-top:10px; }
+
+  /* itinerary */
+  .prayer-strip{ display:flex; justify-content:space-between; background:var(--surface-2); border-radius:14px; padding:10px 6px; }
+  .prayer-strip div{ text-align:center; flex:1; }
+  .prayer-strip .name{ font-size:.62rem; color:var(--muted); font-weight:600; }
+  .prayer-strip .time{ font-size:.76rem; font-weight:700; font-variant-numeric:tabular-nums; margin-top:2px; }
+  .offline-badge{
+    display:inline-flex; align-items:center; gap:5px; font-size:.66rem; font-weight:600; color:var(--teal);
+    background:var(--teal-tint); padding:4px 9px; border-radius:999px; margin-top:10px;
+  }
+  .offline-badge svg{ width:11px; height:11px; }
+
+  .stop-card{
+    display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--line); border-radius:14px; margin-top:8px;
+    background:var(--surface);
+  }
+  .stop-card.done{ opacity:.55; }
+  .stop-card.done h3{ text-decoration:line-through; }
+  .stop-time{ font-size:.72rem; font-weight:700; color:var(--teal); width:44px; flex:none; font-variant-numeric:tabular-nums; }
+  .stop-body{ flex:1; min-width:0; }
+  .stop-body h3{ font-size:.82rem; font-family:'IBM Plex Sans',sans-serif; font-weight:600; }
+  .stop-body span{ font-size:.68rem; color:var(--muted); }
+  .stop-actions{ display:flex; gap:4px; }
+  .mini-btn{
+    width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:var(--surface-2);
+    color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .mini-btn svg{ width:12px; height:12px; }
+
+  .picker{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .picker button{
+    border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 11px; font-size:.7rem;
+    color:var(--ink-soft); cursor:pointer;
+  }
+  .picker button[disabled]{ opacity:.4; cursor:default; }
+
+  /* journal */
+  .journal-entry{ display:flex; gap:10px; margin-bottom:16px; }
+  .journal-dot{ display:flex; flex-direction:column; align-items:center; flex:none; }
+  .journal-dot i{ width:9px; height:9px; border-radius:50%; background:var(--teal); }
+  .journal-dot span{ flex:1; width:1px; background:var(--line); margin-top:4px; }
+  .journal-card{ flex:1; background:var(--surface-2); border-radius:14px; padding:11px 13px; }
+  .journal-card time{ font-size:.64rem; color:var(--muted); font-weight:600; }
+  .journal-card p{ font-size:.8rem; margin-top:5px; line-height:1.5; }
+  .journal-media{ display:flex; gap:6px; margin-top:8px; }
+  .media-chip{
+    display:flex; align-items:center; gap:4px; font-size:.62rem; font-weight:600; color:var(--ink-soft);
+    background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:3px 8px;
+  }
+  .media-chip svg{ width:10px; height:10px; }
+  .journal-form textarea{
+    width:100%; border:1px solid var(--line); border-radius:12px; padding:10px; font-family:inherit; font-size:.8rem;
+    resize:vertical; min-height:64px; background:var(--surface); color:var(--ink);
+  }
+  .journal-form-row{ display:flex; gap:6px; margin-top:8px; }
+  .chip-btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:5px; font-size:.7rem; font-weight:600;
+    border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:8px; cursor:pointer; color:var(--ink-soft);
+  }
+  .chip-btn.active{ background:var(--teal-tint); border-color:var(--teal); color:var(--teal); }
+  .chip-btn svg{ width:13px; height:13px; }
+
+  /* profile */
+  .prof-card{ background:var(--surface-2); border-radius:16px; padding:16px; text-align:center; }
+  .prof-avatar{
+    width:56px; height:56px; border-radius:50%; background:var(--teal); color:#fff; display:flex; align-items:center;
+    justify-content:center; font-weight:700; margin:0 auto 10px; font-size:1.1rem;
+  }
+  .lang-grid{ display:flex; gap:8px; margin-top:8px; }
+  .lang-opt{
+    flex:1; border:1px solid var(--line); border-radius:12px; padding:10px 8px; background:var(--surface); cursor:pointer;
+    font-size:.78rem; font-weight:600; color:var(--ink-soft);
+  }
+  .lang-opt[aria-pressed="true"]{ border-color:var(--teal); background:var(--teal-tint); color:var(--teal); }
+  .toggle-row{
+    display:flex; align-items:center; justify-content:space-between; padding:12px 2px; border-bottom:1px solid var(--line);
+  }
+  .toggle-row:last-of-type{ border-bottom:none; }
+  .toggle-row h3{ font-size:.82rem; font-family:'IBM Plex Sans',sans-serif; font-weight:600; }
+  .toggle-row p{ font-size:.68rem; color:var(--muted); margin-top:2px; max-width:190px; }
+  .switch{
+    width:40px; height:23px; border-radius:999px; background:var(--line); border:none; position:relative; cursor:pointer; flex:none;
+  }
+  .switch::after{
+    content:""; position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:var(--surface);
+    box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .18s;
+  }
+  .switch[aria-pressed="true"]{ background:var(--teal); }
+  .switch[aria-pressed="true"]::after{ transform:translateX(17px); }
+  [dir="rtl"] .switch[aria-pressed="true"]::after{ transform:translateX(-17px); }
+
+  .langlist{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .langlist span{
+    font-size:.66rem; background:var(--surface); border:1px solid var(--line); padding:4px 9px; border-radius:999px; color:var(--muted);
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .toast, .overlay, .wave i, .switch::after{ transition:none !important; animation:none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 2 L18.5 12.5 L29 15 L18.5 17.5 L16 28 L13.5 17.5 L3 15 L13.5 12.5 Z" fill="var(--teal)"/>
+      </svg>
+      <div>
+        <span id="brandName">Rihlaty</span>
+        <small id="brandSub">Interactive prototype</small>
+      </div>
+    </div>
+    <div class="toggles">
+      <button class="pill-btn" id="themeToggle" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+        <span id="themeLabel">Dark view</span>
+      </button>
+      <button class="pill-btn" id="pageLangToggle" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+        <span id="pageLangLabel">العربية</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="intro">
+      <div class="eyebrow" id="eyebrow">Digital twin companion · Two Holy Mosques</div>
+      <h2 id="heroTitle">Every pilgrim's history, <em>carried home.</em></h2>
+      <p class="lede" id="heroLede">Rihlaty layers a live digital twin, elder-narrated oral history and a private journal onto every step around the Haramain — try the core screens below exactly as a pilgrim would.</p>
+
+      <div class="feature-grid" id="featureGrid"></div>
+
+      <div class="meta-strip" id="metaStrip"></div>
+    </div>
+
+    <div class="stage">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="screen" id="screen" dir="ltr" lang="en">
+          <div class="statusbar">
+            <span id="clock">9:41</span>
+            <div class="icons">
+              <svg viewBox="0 0 16 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx=".5"/><rect x="4.5" y="4.5" width="3" height="6.5" rx=".5"/><rect x="9" y="2" width="3" height="9" rx=".5"/><rect x="13" y="0" width="3" height="11" rx=".5" opacity=".4"/></svg>
+              <svg viewBox="0 0 22 11" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".5" y=".5" width="18" height="10" rx="2.5"/><rect x="2" y="2" width="12" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="20" y="3.3" width="1.5" height="4.4" rx=".7" fill="currentColor"/></svg>
+            </div>
+          </div>
+
+          <div class="app-header">
+            <div class="greet">
+              <h2 id="greetTitle">Assalamu Alaikum</h2>
+              <p id="greetSub">Makkah · Day 2 of your visit</p>
+            </div>
+            <div class="header-actions">
+              <button class="icon-btn" id="langQuick" type="button" title="Language" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+              </button>
+              <button class="icon-btn" id="a11yQuick" type="button" title="Large text" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19l4-12 4 12M5.5 15h5M14 8h6M14 13h4.5M14 18h6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="body" id="body"></div>
+
+          <div class="bottomnav" id="bottomnav"></div>
+
+          <div class="overlay" id="overlay">
+            <div class="overlay-head">
+              <button class="icon-btn" id="overlayClose" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5 9 12l6 7M5 12h14" stroke-linecap="round"/></svg>
+              </button>
+              <h2 id="overlayTitle">Site</h2>
+            </div>
+            <div class="overlay-body" id="overlayBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- content ---------------- */
+  var SITES = [
+    {
+      id:"ajyad", era:"1870s–1980s", distance:{en:"140 m away",ar:"140 م"},
+      name:{en:"Ajyad Historic Quarter",ar:"حي أجياد التاريخي"},
+      blurb:{en:"A hillside residential quarter that stood beside Masjid al-Haram for over a century before it made way for the modern clock-tower district.",
+             ar:"حي سكني على المنحدر جاور المسجد الحرام لأكثر من قرن قبل أن يفسح المجال لمنطقة برج الساعة الحديثة."},
+      body:{en:"Ajyad grew around narrow stone lanes that climbed the hillside just south of the Haram, home to generations of Makkan families and small trading houses. Digitised structural surveys and photographs from the 1970s form the basis of this quarter's twin, so its layout and daily rhythm stay discoverable even though the physical quarter is gone.",
+            ar:"نشأ حي أجياد حول أزقة حجرية ضيقة تتسلق المنحدر جنوب الحرم مباشرة، وسكنته أجيال من العائلات المكية وبيوت التجارة الصغيرة. تشكّل المسوحات الإنشائية والصور الرقمية من السبعينيات أساس التوأم الرقمي لهذا الحي، بحيث يبقى تخطيطه وإيقاعه اليومي قابلاً للاكتشاف رغم زوال الحي الفعلي."},
+      narrator:{en:"Umm Yusuf, 82",ar:"أم يوسف، 82 عامًا"}, narratorSub:{en:"Grew up on Ajyad's upper lane",ar:"نشأت في الزقاق العلوي بأجياد"}, duration:"1:42", initials:"UY"
+    },
+    {
+      id:"shamiya", era:"1800s–1990s", distance:{en:"310 m away",ar:"310 م"},
+      name:{en:"Al-Shamiya Old Souq",ar:"سوق الشامية القديم"},
+      blurb:{en:"A covered marketplace quarter on the Haram's western flank, once the first stop for caravans arriving from Jeddah and the Levant.",
+             ar:"سوق مسقوف على الجهة الغربية من الحرم، كان أول محطة للقوافل القادمة من جدة وبلاد الشام."},
+      body:{en:"Traders here dealt in cloth, spice and pilgrimage provisions, with family-run shopfronts passed down for generations. The souq's stalls and covered alleys are reconstructed in the twin from municipal archive maps, so pilgrims can walk its footprint and see what stood where their present-day route now runs.",
+            ar:"تاجر أصحاب المحال هنا بالأقمشة والتوابل ومؤن الحجاج، وتوارثت العائلات محالها جيلاً بعد جيل. أعيد بناء أروقة السوق وأزقته المسقوفة في التوأم الرقمي اعتمادًا على خرائط الأرشيف البلدي، ليتمكن الحجاج من السير على أثره ورؤية ما كان قائمًا في موضع طريقهم اليوم."},
+      narrator:{en:"Sheikh Abdul-Rahman, 76",ar:"الشيخ عبد الرحمن، 76 عامًا"}, narratorSub:{en:"Third-generation souq trader",ar:"تاجر من الجيل الثالث في السوق"}, duration:"2:05", initials:"AR"
+    },
+    {
+      id:"anbariyah", era:"1900s–2000s", distance:{en:"2.1 km away",ar:"2.1 كم"},
+      name:{en:"Al-Anbariyah Quarter, Madinah",ar:"حي العنبرية، المدينة المنورة"},
+      blurb:{en:"A close-knit neighbourhood a few minutes' walk from Masjid an-Nabawi, known for its scholars' guesthouses.",
+             ar:"حي متلاحم يبعد دقائق سيرًا عن المسجد النبوي، اشتهر ببيوت ضيافة طلبة العلم."},
+      body:{en:"Al-Anbariyah housed visiting students and scholars for over a century, its guesthouses run by families who took pride in hosting travellers for the sake of learning. Elder accounts describe daily life around its central courtyard, now preserved as an audio-linked layer over the present-day street grid.",
+            ar:"استضاف حي العنبرية طلبة العلم والزوار لأكثر من قرن، وكانت بيوت الضيافة فيه تديرها عائلات تفخر باستقبال المسافرين طلبًا للعلم. تصف روايات كبار السن الحياة اليومية حول ساحته المركزية، وهي الآن محفوظة كطبقة صوتية فوق شبكة الشوارع الحالية."},
+      narrator:{en:"Hajjah Salma, 79",ar:"الحاجة سلمى، 79 عامًا"}, narratorSub:{en:"Daughter of a guesthouse keeper",ar:"ابنة أحد أصحاب بيوت الضيافة"}, duration:"1:58", initials:"HS"
+    }
+  ];
+
+  var STR = {
+    en:{ dir:"ltr", brandSub:"Interactive prototype", pageLang:"العربية",
+      themeDark:"Dark view", themeLight:"Light view",
+      eyebrow:"Digital twin companion · Two Holy Mosques",
+      heroTitle:'Every pilgrim’s history, <em>carried home.</em>',
+      heroLede:"Rihlaty layers a live digital twin, elder-narrated oral history and a private journal onto every step around the Haramain — try the core screens below exactly as a pilgrim would.",
+      features:[
+        ["twin","Digital twin map","Present-day 3D map with versioned historical layers of the same ground."],
+        ["voice","Elder oral history","Professionally recorded narrations, tied to exact locations."],
+        ["journal","Private journal","Notes, photos and voice memos that travel home with you."],
+        ["globe","10+ languages","Adaptive RTL/LTR layout with elderly-friendly large-text mode."]
+      ],
+      meta:[["150+","Heritage sites"],["10+","Languages"],["99.9%","Uptime target"]],
+      greetTitle:"Assalamu Alaikum", greetSub:"Makkah · Day 2 of your visit",
+      navHome:"Home", navDiscover:"Discover", navPlan:"Itinerary", navJournal:"Journal", navProfile:"Profile",
+      mapTitle:"Haramain digital twin", mapNote:"Drag the layer toggle to compare today's footprint with the historic quarter beneath it.",
+      layerPresent:"Present", layerHistoric:"Historic",
+      nearbyTitle:"Nearby heritage", simulateBtn:"Simulate approaching a site",
+      toastTitle:"You're near a heritage site", toastBody:"Ajyad Historic Quarter · tap to hear its story",
+      discoverIntro:"Every site lost to redevelopment stays discoverable — announced, explained, and narrated by those who remember it.",
+      sponsoredLabel:"Sponsored · not shown on prayer screens", sponsoredName:"Baraka Dates & Gifts",
+      sponsoredBlurb:"Modest keepsakes and dates, 2 minutes from Gate 79.",
+      compareLeft:"Historic", compareRight:"Present", listenTitle:"Elder narrator",
+      playLabel:"Play narration", pauseLabel:"Pause narration",
+      consent:"Recorded with the narrator's and family's consent, and verified with local historians and the heritage governance board before publication.",
+      prayerTitle:"Today's prayer times", prayerSub:"Synced to the Umm al-Qura calendar",
+      offline:"Available offline", planTitle:"Your visit plan",
+      addStop:"Add a stop", stopVisited:"Mark visited", stopRemove:"Remove",
+      journalTitle:"Pilgrimage journal", journalPrivate:"Private by default — only you can see this journal.",
+      newEntry:"New entry", entryPlaceholder:"What did you see or feel today?", attachPhoto:"Photo", attachVoice:"Voice memo",
+      saveEntry:"Save entry",
+      profileName:"Fatimah A.", profileRole:"First-time Umrah visitor",
+      langSectionTitle:"App language", a11ySectionTitle:"Accessibility",
+      a11yLarge:"Large text & voice narration", a11yLargeSub:"Elderly-friendly sizing across every screen.",
+      offlineToggleTitle:"Offline itinerary sync", offlineToggleSub:"Keep today's plan and maps cached for congested networks.",
+      missionTitle:"Our mission", mission:"Preserve, narrate and personalise the historical and spiritual experience of every pilgrim to the Two Holy Mosques — in their own language, at their own pace.",
+      langAvail:"10+ languages at launch",
+      prayers:[["Fajr","4:52"],["Dhuhr","12:18"],["Asr","3:41"],["Maghrib","6:24"],["Isha","7:54"]],
+      pins:[["ajyad","Ajyad Historic Quarter","Time-travel available"],["shamiya","Al-Shamiya Old Souq","Elder narration"],["anbariyah","Al-Anbariyah Quarter","Time-travel available"]],
+      stops:[
+        {id:"s1", time:"9:00", title:"Fajr at the Haram", sub:"Prayer · fixed", done:true, removable:false},
+        {id:"ajyad", time:"10:30", title:"Ajyad Historic Quarter", sub:"Heritage walk · 25 min", done:false, removable:true},
+        {id:"s3", time:"12:15", title:"Dhuhr at the Haram", sub:"Prayer · fixed", done:false, removable:false}
+      ],
+      journalSeed:[
+        {date:"Today, 9:52", text:"Stood where Ajyad's upper lane used to run — Umm Yusuf's story about the shared courtyard well stayed with me the whole walk back.", media:["photo"]},
+        {date:"Yesterday, 6:30", text:"First Maghrib at the Haram. Quieter than I expected, and the marble was still warm from the day.", media:["voice"]}
+      ]
+    },
+    ar:{ dir:"rtl", brandSub:"نموذج تفاعلي", pageLang:"English",
+      themeDark:"العرض الداكن", themeLight:"العرض الفاتح",
+      eyebrow:"رفيق التوأم الرقمي · الحرمين الشريفين",
+      heroTitle:'تاريخ كل حاجّ، <em>يعود معه إلى بيته.</em>',
+      heroLede:"يجمع رحلتي بين توأم رقمي حي، وروايات شفهية يرويها كبار السن، ويوميات خاصة على كل خطوة حول الحرمين — جرّب الشاشات الأساسية أدناه كما يفعل الحاجّ تمامًا.",
+      features:[
+        ["twin","خريطة التوأم الرقمي","خريطة ثلاثية الأبعاد للحاضر مع طبقات تاريخية موثّقة لنفس الأرض."],
+        ["voice","روايات كبار السن","تسجيلات صوتية احترافية مرتبطة بمواقع محددة بدقة."],
+        ["journal","يوميات خاصة","ملاحظات وصور ومذكرات صوتية ترافقك إلى بيتك."],
+        ["globe","+10 لغات","تصميم متكيّف مع الاتجاهين مع وضع نص كبير مناسب لكبار السن."]
+      ],
+      meta:[["+150","موقعًا تراثيًا"],["+10","لغات"],["٪99.9","هدف التوفر"]],
+      greetTitle:"السلام عليكم", greetSub:"مكة المكرمة · اليوم الثاني من زيارتك",
+      navHome:"الرئيسية", navDiscover:"استكشاف", navPlan:"البرنامج", navJournal:"اليوميات", navProfile:"حسابي",
+      mapTitle:"التوأم الرقمي للحرمين", mapNote:"اسحب مفتاح الطبقة لمقارنة الشكل الحالي بالحي التاريخي أسفله.",
+      layerPresent:"الحاضر", layerHistoric:"التاريخي",
+      nearbyTitle:"مواقع تراثية قريبة", simulateBtn:"محاكاة الاقتراب من موقع",
+      toastTitle:"أنت قريب من موقع تراثي", toastBody:"حي أجياد التاريخي · اضغط لسماع قصته",
+      discoverIntro:"كل موقع طواه التطوير العمراني يبقى قابلاً للاكتشاف — معلنًا ومُفسَّرًا ومرويًا ممن عاصروه.",
+      sponsoredLabel:"إعلان ممول · لا يظهر في شاشات الصلاة", sponsoredName:"بركة للتمور والهدايا",
+      sponsoredBlurb:"هدايا محتشمة وتمور، على بعد دقيقتين من البوابة 79.",
+      compareLeft:"تاريخي", compareRight:"حاضر", listenTitle:"راوي من كبار السن",
+      playLabel:"تشغيل الرواية", pauseLabel:"إيقاف الرواية",
+      consent:"سُجِّلت هذه الرواية بموافقة الراوي وأسرته، وتم التحقق منها مع مؤرخين محليين ومجلس حوكمة التراث قبل النشر.",
+      prayerTitle:"مواقيت الصلاة اليوم", prayerSub:"متزامنة مع تقويم أم القرى",
+      offline:"متاح دون اتصال", planTitle:"برنامج زيارتك",
+      addStop:"إضافة محطة", stopVisited:"تمييز كمُنجز", stopRemove:"إزالة",
+      journalTitle:"يوميات الحج والعمرة", journalPrivate:"خاصة افتراضيًا — أنت وحدك من يراها.",
+      newEntry:"تدوينة جديدة", entryPlaceholder:"ماذا رأيت أو شعرت به اليوم؟", attachPhoto:"صورة", attachVoice:"مذكرة صوتية",
+      saveEntry:"حفظ التدوينة",
+      profileName:"فاطمة أ.", profileRole:"معتمرة لأول مرة",
+      langSectionTitle:"لغة التطبيق", a11ySectionTitle:"إمكانية الوصول",
+      a11yLarge:"نص كبير وسرد صوتي", a11yLargeSub:"أحجام مناسبة لكبار السن في كل شاشة.",
+      offlineToggleTitle:"مزامنة البرنامج دون اتصال", offlineToggleSub:"إبقاء خطة اليوم والخرائط محفوظة عند ازدحام الشبكة.",
+      missionTitle:"رسالتنا", mission:"حفظ ورواية وتخصيص التجربة التاريخية والروحية لكل حاجّ إلى الحرمين الشريفين — بلغته وعلى وتيرته الخاصة.",
+      langAvail:"+10 لغات عند الإطلاق",
+      prayers:[["الفجر","4:52"],["الظهر","12:18"],["العصر","3:41"],["المغرب","6:24"],["العشاء","7:54"]],
+      pins:[["ajyad","حي أجياد التاريخي","تتوفر مقارنة زمنية"],["shamiya","سوق الشامية القديم","رواية صوتية"],["anbariyah","حي العنبرية","تتوفر مقارنة زمنية"]],
+      stops:[
+        {id:"s1", time:"9:00", title:"الفجر في الحرم", sub:"صلاة · ثابت", done:true, removable:false},
+        {id:"ajyad", time:"10:30", title:"حي أجياد التاريخي", sub:"جولة تراثية · 25 د", done:false, removable:true},
+        {id:"s3", time:"12:15", title:"الظهر في الحرم", sub:"صلاة · ثابت", done:false, removable:false}
+      ],
+      journalSeed:[
+        {date:"اليوم، 9:52", text:"وقفت حيث كان يمتد زقاق أجياد العلوي — بقيت معي رواية أم يوسف عن بئر الحوش المشترك طوال طريق العودة.", media:["photo"]},
+        {date:"أمس، 6:30", text:"أول مغرب لي في الحرم. أهدأ مما توقعت، وكان الرخام لا يزال دافئًا من حرارة النهار.", media:["voice"]}
+      ]
+    }
+  };
+
+  var ICONS = {
+    home:'<path d="M4 11.5 12 4l8 7.5M6 10v9h5v-5.5h2V19h5v-9" stroke-linecap="round" stroke-linejoin="round"/>',
+    discover:'<path d="M12 2 14 10 22 12 14 14 12 22 10 14 2 12 10 10Z" stroke-linejoin="round"/>',
+    plan:'<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M8 14h3M8 17.5h6"/>',
+    journal:'<path d="M5 4.5A2 2 0 0 1 7 2.5h10a2 2 0 0 1 2 2V21l-4.5-2.5L10 21l-4.5-2.5L5 21Z" stroke-linejoin="round"/>',
+    profile:'<circle cx="12" cy="8.2" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" stroke-linecap="round"/>',
+    twin:'<path d="M4 17V9l8-4 8 4v8l-8 4-8-4Z" stroke-linejoin="round"/><path d="M4 9l8 4 8-4M12 13v8"/>',
+    voice:'<path d="M9 5.5A3 3 0 0 1 15 5.5v6a3 3 0 0 1-6 0Z"/><path d="M6 11a6 6 0 0 0 12 0M12 20v2"/>',
+    globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/>',
+    bell:'<path d="M6 10a6 6 0 0 1 12 0v4.5l1.6 2.5H4.4L6 14.5Z" stroke-linejoin="round"/><path d="M10 19.5a2 2 0 0 0 4 0"/>',
+    play:'<path d="M6 4.5v15l14-7.5Z" fill="currentColor" stroke="none"/>',
+    pause:'<rect x="5" y="4.5" width="4.5" height="15" rx="1" fill="currentColor" stroke="none"/><rect x="14.5" y="4.5" width="4.5" height="15" rx="1" fill="currentColor" stroke="none"/>',
+    plus:'<path d="M12 5v14M5 12h14" stroke-linecap="round"/>',
+    check:'<path d="M4 12.5 9 18 20 6" stroke-linecap="round" stroke-linejoin="round"/>',
+    x:'<path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/>',
+    cloud:'<path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5 4 4 0 0 1 17 18Z" stroke-linejoin="round"/>',
+    photo:'<rect x="3" y="5.5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-4-4 3-3-2-3 3"/>',
+    mic:'<path d="M12 2.5A2.5 2.5 0 0 1 14.5 5v6a2.5 2.5 0 0 1-5 0V5A2.5 2.5 0 0 1 12 2.5Z"/><path d="M7 11a5 5 0 0 0 10 0M12 19v3"/>'
+  };
+  function icon(name){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">'+ICONS[name]+'</svg>'; }
+
+  /* ---------------- state ---------------- */
+  var state = { lang:"en", theme:"light", screen:"home", twinLayer:"present", a11y:false,
+    itinerary: null, journal:null, audioPlaying:null, comparePos:50 };
+
+  function T(){ return STR[state.lang]; }
+  function siteById(id){ for(var i=0;i<SITES.length;i++) if(SITES[i].id===id) return SITES[i]; return null; }
+
+  function initLists(){
+    state.itinerary = JSON.parse(JSON.stringify(T().stops));
+    state.journal = JSON.parse(JSON.stringify(T().journalSeed));
+  }
+
+  /* ---------------- render: chrome ---------------- */
+  function renderChrome(){
+    var t = T();
+    document.getElementById("pageLangLabel").textContent = t.pageLang;
+    document.getElementById("eyebrow").textContent = t.eyebrow;
+    document.getElementById("heroTitle").innerHTML = t.heroTitle;
+    document.getElementById("heroLede").textContent = t.heroLede;
+    document.getElementById("brandSub").textContent = t.brandSub;
+    document.getElementById("themeLabel").textContent = state.theme==="dark" ? t.themeLight : t.themeDark;
+
+    var wrapDir = t.dir;
+    document.querySelector(".wrap").setAttribute("dir", wrapDir);
+    document.querySelector(".wrap").setAttribute("lang", state.lang);
+
+    var fg = document.getElementById("featureGrid");
+    fg.innerHTML = t.features.map(function(f){
+      return '<div class="feature-card"><div class="ic">'+icon(f[0])+'</div><h3>'+f[1]+'</h3><p>'+f[2]+'</p></div>';
+    }).join("");
+
+    var ms = document.getElementById("metaStrip");
+    ms.innerHTML = t.meta.map(function(m){
+      return '<div><span class="num">'+m[0]+'</span><span class="lbl">'+m[1]+'</span></div>';
+    }).join("");
+  }
+
+  /* ---------------- render: screen frame ---------------- */
+  function renderFrame(){
+    var t = T();
+    var scr = document.getElementById("screen");
+    scr.setAttribute("dir", t.dir);
+    scr.setAttribute("lang", state.lang);
+    document.getElementById("greetTitle").textContent = t.greetTitle;
+    document.getElementById("greetSub").textContent = t.greetSub;
+    document.getElementById("langQuick").setAttribute("aria-pressed", state.lang==="ar");
+    document.getElementById("a11yQuick").setAttribute("aria-pressed", state.a11y);
+    scr.classList.toggle("a11y-large", state.a11y);
+
+    var nav = [
+      ["home","navHome"], ["discover","navDiscover"], ["plan","navPlan"], ["journal","navJournal"], ["profile","navProfile"]
+    ];
+    document.getElementById("bottomnav").innerHTML = nav.map(function(n){
+      var active = state.screen===n[0];
+      return '<button class="navbtn" data-action="nav" data-screen="'+n[0]+'" aria-current="'+active+'">'+
+        icon(n[0])+'<span>'+t[n[1]]+'</span></button>';
+    }).join("");
+  }
+
+  /* ---------------- screens ---------------- */
+  function screenHome(t){
+    var pinIcons = {ajyad:"twin", shamiya:"voice", anbariyah:"twin"};
+    var mapSvg = state.twinLayer==="present" ? svgPresent() : svgHistoric();
+    return ''+
+    '<div class="section-title">'+t.mapTitle+'</div>'+
+    '<div class="map-card">'+
+      '<div style="position:relative">'+
+        '<div class="layer-switch">'+
+          '<button data-action="layer" data-layer="present" aria-pressed="'+(state.twinLayer==="present")+'">'+t.layerPresent+'</button>'+
+          '<button data-action="layer" data-layer="historic" aria-pressed="'+(state.twinLayer==="historic")+'">'+t.layerHistoric+'</button>'+
+        '</div>'+
+        mapSvg+
+      '</div>'+
+      '<div class="map-caption"><p>'+t.mapNote+'</p></div>'+
+    '</div>'+
+    '<div class="section-title">'+t.nearbyTitle+'</div>'+
+    t.pins.map(function(p){
+      return '<div class="pin-row"><div class="pin-dot">'+icon(pinIcons[p[0]])+'</div>'+
+        '<div class="pin-info"><strong>'+p[1]+'</strong><span>'+p[2]+'</span></div>'+
+        '<div class="pin-dist">'+siteById(p[0]).distance[state.lang]+'</div></div>';
+    }).join("")+
+    '<button class="cta-btn" data-action="simulate">'+icon("bell")+t.simulateBtn+'</button>';
+  }
+
+  function svgPresent(){
+    return '<svg class="map-illust" viewBox="0 0 360 150" preserveAspectRatio="xMidYMid slice">'+
+      '<rect width="360" height="150" fill="var(--teal-tint)"/>'+
+      '<g opacity=".9">'+
+      '<rect x="20" y="70" width="34" height="60" fill="var(--teal)"/>'+
+      '<rect x="60" y="50" width="26" height="80" fill="var(--teal-strong)"/>'+
+      '<rect x="150" y="30" width="18" height="100" fill="var(--gold)"/>'+
+      '<rect x="172" y="46" width="18" height="84" fill="var(--teal)"/>'+
+      '<rect x="240" y="60" width="30" height="70" fill="var(--teal-strong)"/>'+
+      '<rect x="278" y="78" width="24" height="52" fill="var(--teal)"/>'+
+      '</g>'+
+      '<g stroke="var(--surface)" stroke-width="2" opacity=".6"><path d="M0 130h360M110 0v150M230 0v150"/></g>'+
+      '<circle cx="159" cy="26" r="4" fill="var(--rose)"/>'+
+      '</svg>';
+  }
+  function svgHistoric(){
+    return '<svg class="map-illust" viewBox="0 0 360 150" preserveAspectRatio="xMidYMid slice">'+
+      '<rect width="360" height="150" fill="var(--gold-tint)"/>'+
+      '<g fill="none" stroke="var(--gold)" stroke-width="2" opacity=".85">'+
+      '<rect x="24" y="86" width="24" height="34"/><rect x="52" y="76" width="20" height="44"/>'+
+      '<rect x="150" y="30" width="18" height="100" fill="var(--gold)" stroke="none"/>'+
+      '<rect x="170" y="70" width="22" height="50"/><rect x="196" y="82" width="18" height="38"/>'+
+      '<rect x="250" y="92" width="20" height="28"/><rect x="272" y="80" width="18" height="40"/>'+
+      '<rect x="294" y="94" width="20" height="26"/>'+
+      '</g>'+
+      '<g stroke="var(--gold)" stroke-width="1.4" opacity=".5"><path d="M0 122c60-8 120 6 180-4s120-2 180 6"/></g>'+
+      '<circle cx="159" cy="26" r="4" fill="var(--rose)"/>'+
+      '</svg>';
+  }
+
+  function siteThumb(id){
+    var svg = id==="shamiya" ? svgHistoric() : svgPresent();
+    return '<div class="site-thumb">'+svg.replace('class="map-illust"','')+'</div>';
+  }
+
+  function screenDiscover(t){
+    return '<p class="lede-text" style="margin-top:0">'+t.discoverIntro+'</p>'+
+      SITES.map(function(s){
+        return '<button class="site-card" data-action="open-site" data-id="'+s.id+'">'+
+          siteThumb(s.id)+
+          '<div class="site-body"><h3>'+s.name[state.lang]+'</h3><p>'+s.blurb[state.lang]+'</p>'+
+          '<div class="tag-row"><span class="tag era">'+s.era+'</span><span class="tag voice">'+icon("voice")+'</span></div></div>'+
+        '</button>';
+      }).join("")+
+      '<div class="sponsored">'+siteThumb("s")+
+        '<div><div class="sponsored-label">'+t.sponsoredLabel+'</div><strong style="font-size:.82rem">'+t.sponsoredName+'</strong>'+
+        '<p style="font-size:.7rem;color:var(--muted);margin-top:2px">'+t.sponsoredBlurb+'</p></div></div>';
+  }
+
+  function openSite(id){
+    var s = siteById(id);
+    var t = T();
+    document.getElementById("overlayTitle").textContent = s.name[state.lang];
+    document.getElementById("overlayBody").innerHTML =
+      '<div class="compare" style="--pos:'+state.comparePos+'%">'+
+        '<div class="layer historic">'+svgHistoric()+'</div>'+
+        '<div class="layer present">'+svgPresent()+'</div>'+
+        '<div class="handle"></div>'+
+        '<span class="compare-tag left">'+t.compareLeft+'</span>'+
+        '<span class="compare-tag right">'+t.compareRight+'</span>'+
+      '</div>'+
+      '<input class="slider" type="range" min="0" max="100" value="'+state.comparePos+'" id="compareSlider" aria-label="'+t.compareLeft+' / '+t.compareRight+'">'+
+      '<div class="audio-card">'+
+        '<div class="avatar">'+s.initials+'</div>'+
+        '<div class="audio-mid"><strong>'+s.narrator[state.lang]+'</strong><span>'+s.narratorSub[state.lang]+' · '+s.duration+'</span>'+
+        '<div class="wave'+(state.audioPlaying===s.id?' playing':'')+'">'+Array(14).fill(0).map(function(){return '<i></i>';}).join("")+'</div></div>'+
+        '<button class="play-btn" data-action="play-audio" data-id="'+s.id+'" aria-label="'+(state.audioPlaying===s.id?t.pauseLabel:t.playLabel)+'">'+
+          icon(state.audioPlaying===s.id ? "pause" : "play")+'</button>'+
+      '</div>'+
+      '<p class="lede-text">'+s.body[state.lang]+'</p>'+
+      '<p class="fine">'+t.consent+'</p>';
+    document.getElementById("overlay").classList.add("open");
+    var slider = document.getElementById("compareSlider");
+    slider.addEventListener("input", function(){
+      state.comparePos = slider.value;
+      document.querySelector(".compare").style.setProperty("--pos", slider.value+"%");
+    });
+  }
+
+  function screenPlan(t){
+    return '<div class="section-title">'+t.prayerTitle+'</div>'+
+      '<div class="prayer-strip">'+t.prayers.map(function(p){
+        return '<div><div class="name">'+p[0]+'</div><div class="time">'+p[1]+'</div></div>';
+      }).join("")+'</div>'+
+      '<div class="offline-badge">'+icon("cloud")+t.offline+'</div>'+
+      '<div class="section-title">'+t.planTitle+'</div>'+
+      state.itinerary.map(function(stp){
+        return '<div class="stop-card'+(stp.done?" done":"")+'">'+
+          '<div class="stop-time">'+stp.time+'</div>'+
+          '<div class="stop-body"><h3>'+stp.title+'</h3><span>'+stp.sub+'</span></div>'+
+          (stp.removable ? '<div class="stop-actions">'+
+            '<button class="mini-btn" data-action="stop-done" data-id="'+stp.id+'" aria-label="'+t.stopVisited+'">'+icon("check")+'</button>'+
+            '<button class="mini-btn" data-action="stop-remove" data-id="'+stp.id+'" aria-label="'+t.stopRemove+'">'+icon("x")+'</button>'+
+          '</div>' : '')+
+        '</div>';
+      }).join("")+
+      '<div class="picker">'+SITES.map(function(s){
+        var already = state.itinerary.some(function(i){return i.id===s.id;});
+        return '<button data-action="add-stop" data-id="'+s.id+'" '+(already?"disabled":"")+'>+ '+s.name[state.lang]+'</button>';
+      }).join("")+'</div>';
+  }
+
+  function screenJournal(t){
+    return '<p class="lede-text" style="margin-top:0">'+t.journalPrivate+'</p>'+
+      '<div class="journal-form">'+
+        '<textarea id="journalInput" placeholder="'+t.entryPlaceholder+'"></textarea>'+
+        '<div class="journal-form-row">'+
+          '<button class="chip-btn" data-action="toggle-media" data-kind="photo">'+icon("photo")+t.attachPhoto+'</button>'+
+          '<button class="chip-btn" data-action="toggle-media" data-kind="voice">'+icon("mic")+t.attachVoice+'</button>'+
+        '</div>'+
+        '<button class="cta-btn" data-action="save-entry">'+icon("plus")+t.saveEntry+'</button>'+
+      '</div>'+
+      '<div class="section-title">'+t.journalTitle+'</div>'+
+      state.journal.map(function(e,i){
+        return '<div class="journal-entry"><div class="journal-dot"><i></i>'+(i<state.journal.length-1?'<span></span>':'')+'</div>'+
+          '<div class="journal-card"><time>'+e.date+'</time><p>'+e.text+'</p>'+
+          (e.media && e.media.length ? '<div class="journal-media">'+e.media.map(function(m){
+            return '<span class="media-chip">'+icon(m)+(m==="photo"?t.attachPhoto:t.attachVoice)+'</span>';
+          }).join("")+'</div>' : '')+
+          '</div></div>';
+      }).join("");
+  }
+
+  function screenProfile(t){
+    return '<div class="prof-card"><div class="prof-avatar">'+(state.lang==="ar"?"ف":"F")+'</div>'+
+      '<strong>'+t.profileName+'</strong><p style="font-size:.72rem;color:var(--muted);margin-top:3px">'+t.profileRole+'</p></div>'+
+      '<div class="section-title">'+t.langSectionTitle+'</div>'+
+      '<div class="lang-grid">'+
+        '<button class="lang-opt" data-action="set-lang" data-lang="en" aria-pressed="'+(state.lang==="en")+'">English</button>'+
+        '<button class="lang-opt" data-action="set-lang" data-lang="ar" aria-pressed="'+(state.lang==="ar")+'">العربية</button>'+
+      '</div>'+
+      '<div class="langlist">'+["Urdu","Bahasa","Turkish","French","Malay","Hausa","Bengali","Farsi"].map(function(l){return '<span>'+l+'</span>';}).join("")+
+        '<span>'+t.langAvail+'</span></div>'+
+      '<div class="section-title">'+t.a11ySectionTitle+'</div>'+
+      '<div class="toggle-row"><div><h3>'+t.a11yLarge+'</h3><p>'+t.a11yLargeSub+'</p></div>'+
+        '<button class="switch" data-action="toggle-a11y" aria-pressed="'+state.a11y+'"></button></div>'+
+      '<div class="toggle-row"><div><h3>'+t.offlineToggleTitle+'</h3><p>'+t.offlineToggleSub+'</p></div>'+
+        '<button class="switch" data-action="toggle-noop" aria-pressed="true"></button></div>'+
+      '<div class="section-title">'+t.missionTitle+'</div>'+
+      '<p class="lede-text">'+t.mission+'</p>';
+  }
+
+  function renderBody(){
+    var t = T();
+    var s = state.screen;
+    var html = s==="home" ? screenHome(t) : s==="discover" ? screenDiscover(t) : s==="plan" ? screenPlan(t) :
+               s==="journal" ? screenJournal(t) : screenProfile(t);
+    document.getElementById("body").innerHTML = html;
+  }
+
+  function renderAll(){
+    renderChrome();
+    renderFrame();
+    renderBody();
+  }
+
+  /* ---------------- interactions ---------------- */
+  var toastTimer = null;
+  function showToast(){
+    var t = T();
+    var body = document.getElementById("body");
+    var existing = document.getElementById("toast");
+    if (existing) existing.remove();
+    var el = document.createElement("div");
+    el.className = "toast"; el.id = "toast";
+    el.innerHTML = '<div class="ic">'+icon("bell")+'</div><div><strong>'+t.toastTitle+'</strong><p>'+t.toastBody+'</p></div>';
+    body.prepend(el);
+    requestAnimationFrame(function(){ el.classList.add("show"); });
+    el.addEventListener("click", function(){
+      hideToast();
+      state.screen = "discover";
+      renderFrame(); renderBody();
+      openSite("ajyad");
+    });
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 4200);
+  }
+  function hideToast(){
+    var el = document.getElementById("toast");
+    if (el){ el.classList.remove("show"); setTimeout(function(){ if(el.parentNode) el.remove(); }, 350); }
+  }
+
+  document.getElementById("screen").addEventListener("click", function(e){
+    var b = e.target.closest("[data-action]");
+    if (!b) return;
+    var action = b.dataset.action;
+
+    if (action==="nav"){ state.screen = b.dataset.screen; renderFrame(); renderBody(); }
+    else if (action==="layer"){ state.twinLayer = b.dataset.layer; renderBody(); }
+    else if (action==="simulate"){ showToast(); }
+    else if (action==="open-site"){ openSite(b.dataset.id); }
+    else if (action==="play-audio"){
+      var id = b.dataset.id;
+      state.audioPlaying = state.audioPlaying===id ? null : id;
+      openSite(id);
+    }
+    else if (action==="stop-done"){
+      var stp = state.itinerary.find(function(x){return x.id===b.dataset.id;});
+      if (stp) stp.done = !stp.done;
+      renderBody();
+    }
+    else if (action==="stop-remove"){
+      state.itinerary = state.itinerary.filter(function(x){return x.id!==b.dataset.id;});
+      renderBody();
+    }
+    else if (action==="add-stop"){
+      var site = siteById(b.dataset.id);
+      state.itinerary.splice(state.itinerary.length-1, 0, {
+        id:site.id, time:"11:15", title:site.name[state.lang],
+        sub:(state.lang==="ar"?"جولة تراثية · 20 د":"Heritage walk · 20 min"), done:false, removable:true
+      });
+      renderBody();
+    }
+    else if (action==="toggle-media"){
+      b.classList.toggle("active");
+    }
+    else if (action==="save-entry"){
+      var ta = document.getElementById("journalInput");
+      var text = ta.value.trim();
+      if (!text) return;
+      var media = Array.from(document.querySelectorAll('.chip-btn.active')).map(function(c){return c.dataset.kind;});
+      state.journal.unshift({date:(state.lang==="ar"?"الآن":"Just now"), text:text, media:media});
+      renderBody();
+    }
+    else if (action==="set-lang"){ setLang(b.dataset.lang); }
+    else if (action==="toggle-a11y"){ state.a11y = !state.a11y; renderFrame(); }
+    else if (action==="toggle-noop"){ /* demo only */ }
+  });
+
+  document.getElementById("overlayClose").addEventListener("click", function(){
+    document.getElementById("overlay").classList.remove("open");
+    state.audioPlaying = null;
+  });
+
+  function setLang(lang){
+    if (state.lang===lang) return;
+    state.lang = lang;
+    initLists();
+    state.audioPlaying = null;
+    document.getElementById("overlay").classList.remove("open");
+    renderAll();
+  }
+
+  document.getElementById("langQuick").addEventListener("click", function(){ setLang(state.lang==="en"?"ar":"en"); });
+  document.getElementById("pageLangToggle").addEventListener("click", function(){ setLang(state.lang==="en"?"ar":"en"); });
+  document.getElementById("a11yQuick").addEventListener("click", function(){
+    state.a11y = !state.a11y; renderFrame();
+  });
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    state.theme = state.theme==="light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", state.theme);
+    document.getElementById("themeToggle").setAttribute("aria-pressed", state.theme==="dark");
+    renderChrome();
+  });
+
+  function tickClock(){
+    var d = new Date();
+    var h = d.getHours()%12; if (h===0) h=12;
+    var m = d.getMinutes();
+    document.getElementById("clock").textContent = h+":"+(m<10?"0":"")+m;
+  }
+  tickClock(); setInterval(tickClock, 30000);
+
+  initLists();
+  renderAll();
+})();
+</script>

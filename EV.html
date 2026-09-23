@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1B5E3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EVAPP">
+<meta name="description" content="EVAPP · NeighCharge — Community solar EV charging & booking (Egypt)">
+<title>EVAPP · NeighCharge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#1B5E3A; --leaf:#2F9E5C; --amber:#F2A63A; --deep:#0E3320; --slate:#3F5148; --mist:#F5FAF7;
+  --line:#DDE8E1; --mute:#7A8A81; --red:#C8453B; --redbg:#FBEDEB; --white:#fff;
+  --r:16px; --tab:64px;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#E7EFEA;font-family:Inter,"Cairo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--deep);font-size:14px;-webkit-font-smoothing:antialiased}
+[dir=rtl] body,[dir=rtl] button,[dir=rtl] input,[dir=rtl] textarea{font-family:"Cairo",Inter,system-ui,sans-serif}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+[dir=rtl] .flip{transform:scaleX(-1)}
+
+/* Device shell: full-screen on phones, framed on desktop */
+#app{position:relative;width:100%;height:100%;height:100dvh;background:var(--mist);overflow:hidden;display:flex;flex-direction:column}
+@media (min-width:520px){
+  body{display:flex;align-items:center;justify-content:center;padding:24px}
+  #app{width:390px;height:min(844px,calc(100vh - 48px));border-radius:44px;border:10px solid var(--deep);box-shadow:0 30px 80px rgba(14,51,32,.28)}
+}
+#screen{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;padding-top:var(--sat);-webkit-overflow-scrolling:touch}
+#screen.nopad{padding-top:0}
+.pad{padding:16px}
+.enter{animation:enter .22s ease-out}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Tab bar */
+#tabbar{display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:var(--sab);flex:none}
+#tabbar[hidden]{display:none}
+#tabbar button{flex:1;height:var(--tab);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#9AA8A0;font-size:10.5px;font-weight:500}
+#tabbar button.on{color:var(--forest);font-weight:700}
+#tabbar button.on svg{stroke-width:2.4}
+
+/* Header */
+.hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;background:var(--mist);z-index:5}
+.hdr h1{font-size:18px;margin:0;flex:1;font-weight:800;letter-spacing:-.2px}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid var(--line);color:var(--forest)}
+.sub{color:var(--mute);font-size:12px}
+h2.sec{font-size:11px;letter-spacing:1.2px;color:var(--leaf);font-weight:800;margin:20px 0 10px;text-transform:uppercase}
+[dir=rtl] h2.sec{letter-spacing:0}
+
+/* Cards & rows */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card+.card{margin-top:10px}
+.row{display:flex;align-items:center;gap:12px}
+.grow{flex:1;min-width:0}
+.chip-i{width:40px;height:40px;border-radius:50%;background:#E6F3EB;color:var(--forest);display:grid;place-items:center;flex:none}
+.chip-i.amber{background:#FDF1DD;color:#B8741A}
+.chip-i.red{background:var(--redbg);color:var(--red)}
+.t{font-weight:700}
+.list .item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.list .item:last-child{border-bottom:0}
+.amt{font-weight:700;white-space:nowrap}
+.pos{color:var(--leaf)} .neg{color:var(--deep)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;background:#E6F3EB;color:var(--forest)}
+.badge.amber{background:#FDF1DD;color:#A2650F}
+.badge.gray{background:#EEF2EF;color:var(--slate)}
+.badge.red{background:var(--redbg);color:var(--red)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+.stat svg{color:var(--forest);margin-bottom:4px}
+.stat b{display:block;font-size:16px}
+.stat span{font-size:11px;color:var(--mute)}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border-radius:14px;background:var(--forest);color:#fff;font-weight:700;font-size:15px}
+.btn:active{transform:scale(.98)}
+.btn.amber{background:var(--amber);color:var(--deep)}
+.btn.ghost{background:transparent;color:var(--forest);border:1.5px solid var(--forest)}
+.btn.red{background:var(--red)}
+.btn.light{background:#E6F3EB;color:var(--forest)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn.sm{min-height:36px;width:auto;padding:0 14px;font-size:13px;border-radius:10px}
+.pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pills::-webkit-scrollbar{display:none}
+.pill{flex:none;padding:9px 16px;border-radius:99px;background:#fff;border:1px solid var(--line);font-weight:600;font-size:13px;color:var(--slate);min-height:40px}
+.pill.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.seg{display:flex;background:#E6EEE9;border-radius:12px;padding:4px}
+.seg button{flex:1;padding:9px;border-radius:9px;font-weight:600;color:var(--slate)}
+.seg button.on{background:#fff;color:var(--forest);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* Inputs */
+.field{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 14px;min-height:50px}
+.field input{flex:1;border:0;outline:0;background:none;min-width:0;height:48px}
+.field.dark{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18);color:#fff}
+.field.dark input::placeholder{color:rgba(255,255,255,.55)}
+.err{color:#FFB4A9;font-size:12px;min-height:16px;margin-top:6px}
+textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;min-height:110px;resize:none;outline:0}
+
+/* Onboarding */
+.onb{min-height:100%;background:radial-gradient(120% 60% at 50% 0%,#1B5E3A 0%,#0E3320 70%);color:#fff;padding:calc(40px + var(--sat)) 24px calc(24px + var(--sab));display:flex;flex-direction:column}
+.logo{width:84px;height:84px;border-radius:50%;background:var(--amber);display:grid;place-items:center;margin:28px auto 16px;color:var(--deep);box-shadow:0 10px 30px rgba(242,166,58,.35)}
+.logo svg{width:40px;height:40px}
+.onb h1{text-align:center;margin:0;font-size:28px;letter-spacing:2px}
+.onb .tag{text-align:center;opacity:.8;margin:6px 0 36px}
+.otp{display:flex;gap:10px;justify-content:center;direction:ltr}
+.otp input{width:54px;height:60px;text-align:center;font-size:24px;font-weight:700;border-radius:14px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;outline:0}
+.link{color:var(--amber);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* Map */
+.mapwrap{position:absolute;inset:0}
+.mapsvg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:2}
+.pin .dot{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;border:3px solid #fff;box-shadow:0 4px 12px rgba(14,51,32,.3)}
+.pin .dot.host{background:var(--forest)} .pin .dot.station{background:var(--amber);color:var(--deep)} .pin .dot.van{background:#2F6FB0}
+.pin .lbl{background:var(--deep);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.pin.sel .dot{transform:scale(1.18);border-color:var(--amber)}
+.pin.me .dot{width:18px;height:18px;background:#2F6FB0;border-width:3px;box-shadow:0 0 0 8px rgba(47,111,176,.2)}
+.maptop{position:absolute;top:calc(12px + var(--sat));left:12px;right:12px;z-index:3;display:flex;flex-direction:column;gap:10px}
+.maptop .field{box-shadow:0 4px 14px rgba(14,51,32,.12);border:0}
+.fabs{position:absolute;inset-inline-end:12px;bottom:190px;display:flex;flex-direction:column;gap:10px;z-index:3}
+.fab{width:48px;height:48px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--forest);box-shadow:0 4px 14px rgba(14,51,32,.18)}
+.fab.sos{background:var(--red);color:#fff;font-weight:800;font-size:12px}
+.mapcard{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;box-shadow:0 8px 24px rgba(14,51,32,.18);border:0}
+
+/* Charging ring */
+.ring{width:190px;height:190px;margin:10px auto 6px;position:relative}
+.ring>svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .v{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .v b{font-size:40px;font-weight:800;color:var(--forest)}
+.pulse{animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.4}}
+
+/* Sheet / toast */
+#scrim{position:absolute;inset:0;background:rgba(14,51,32,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+#scrim.on{opacity:1;pointer-events:auto}
+#sheet{position:absolute;left:0;right:0;bottom:0;z-index:41;background:#fff;border-radius:24px 24px 0 0;padding:10px 16px calc(20px + var(--sab));transform:translateY(105%);transition:transform .25s ease;max-height:88%;overflow-y:auto}
+#sheet.on{transform:none}
+#sheet .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 12px}
+#toast{position:absolute;left:50%;top:calc(76px + var(--sat));transform:translate(-50%,-12px);background:var(--deep);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:.25s;max-width:86%;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+.hero{background:linear-gradient(135deg,var(--forest),var(--deep));color:#fff;border-radius:20px;padding:18px}
+.hero .k{font-size:11px;letter-spacing:1.2px;opacity:.75;font-weight:700;text-transform:uppercase}
+.hero .big{font-size:32px;font-weight:800;margin:4px 0 12px}
+.bar{height:8px;border-radius:9px;background:rgba(255,255,255,.2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--amber);border-radius:9px}
+.bar.g{background:#E6EEE9}.bar.g i{background:var(--leaf)}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tiers div{text-align:center;padding:9px 2px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--slate)}
+.tiers div.on{background:var(--amber);border-color:var(--amber);color:var(--deep)}
+.opt{border:1.5px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;background:#fff;width:100%;text-align:start}
+.opt.on{border-color:var(--leaf);background:#EEF8F2}
+.opt+.opt{margin-top:10px}
+.check{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff;flex:none}
+.opt.on .check{background:var(--leaf);border-color:var(--leaf)}
+.stars{display:flex;gap:8px;justify-content:center}
+.stars button{color:#D8C39B}
+.stars button.on{color:var(--amber)}
+.stars svg{width:34px;height:34px}
+.stars button.on svg{fill:var(--amber)}
+.toggle{width:50px;height:30px;border-radius:99px;background:#CBD6CF;position:relative;transition:.2s;flex:none}
+.toggle::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on{background:var(--leaf)}
+.toggle.on::after{inset-inline-start:23px}
+.center{text-align:center}
+.okicon{width:84px;height:84px;border-radius:50%;background:#E6F3EB;color:var(--forest);display:grid;place-items:center;margin:24px auto 12px}
+.okicon svg{width:44px;height:44px}
+.post{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.post+.post{margin-top:10px}
+.post p{margin:8px 0 0;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:start;min-height:84px}
+.quick b{font-size:13px}
+.flag{font-size:10px;font-weight:700;color:#A2650F}
+.sosbg{background:linear-gradient(#FDF0EE,#FBE3DF);min-height:100%}
+.stepline{display:flex;flex-direction:column;gap:14px;margin-top:6px}
+.stepline div{display:flex;gap:10px;align-items:center}
+.stepline i{width:12px;height:12px;border-radius:50%;background:var(--line);flex:none}
+.stepline .done i{background:var(--leaf)} .stepline .cur i{background:var(--amber)}
+.routeMap{height:220px;border-radius:16px;overflow:hidden;position:relative;background:#E4EEE8}
+.spark{display:flex;align-items:flex-end;gap:6px;height:90px}
+.spark div{flex:1;background:#CFE7D8;border-radius:6px 6px 0 0;position:relative}
+.spark div.on{background:var(--leaf)}
+.spark span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:10px;color:var(--mute)}
+.num{font-variant-numeric:tabular-nums}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:36px;height:36px;border-radius:10px;background:#E6F3EB;color:var(--forest);font-size:20px;font-weight:700}
+.srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div id="app" aria-live="polite">
+  <div id="screen"></div>
+  <nav id="tabbar" hidden></nav>
+  <div id="scrim"></div>
+  <div id="sheet" role="dialog" aria-modal="true"></div>
+  <div id="toast" role="status"></div>
+</div>
+
+<script>
+/* ============================================================
+   EVAPP · NeighCharge — Mobile app prototype (single file)
+   Driver app + Host mode, bilingual EN (LTR) / AR (RTL)
+   All data is in-memory demo data.
+   ============================================================ */
+
+/* ---------- Icons (Feather-style) ---------- */
+const IC={
+ pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+ card:'<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
+ users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+ zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+ sun:'<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+ batt:'<path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.19"/><line x1="23" y1="13" x2="23" y2="11"/><polyline points="11 6 7 12 13 12 9 18"/>',
+ search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+ filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+ truck:'<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
+ ok:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+ check:'<polyline points="20 6 9 17 4 12"/>',
+ back:'<polyline points="15 18 9 12 15 6"/>',
+ next:'<polyline points="9 18 15 12 9 6"/>',
+ bell:'<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+ dollar:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+ gift:'<polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>',
+ award:'<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>',
+ star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+ shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+ tool:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+ nav:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',
+ alert:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+ home:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+ globe:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+ car:'<path d="M3 16V12l2.2-5.2A2 2 0 0 1 7 5.6h10a2 2 0 0 1 1.8 1.2L21 12v4"/><rect x="2" y="12" width="20" height="5" rx="1.5"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
+ plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+ x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+ act:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+ pkg:'<line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+ leaf:'<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>',
+ out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+ swap:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+ bag:'<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+ book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+ lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ phone:'<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
+ chart:'<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>',
+ mega:'<path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+ help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+ target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+ edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>'
+};
+const ic=(n,cls='')=>`<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||''}</svg>`;
+
+/* ---------- i18n helpers ---------- */
+const L=(en,ar)=>S.lang==='ar'?ar:en;
+const AR_DIG='٠١٢٣٤٥٦٧٨٩';
+const n=(v)=>S.lang==='ar'?String(v).replace(/[0-9]/g,d=>AR_DIG[d]).replace(/\./g,'٫'):String(v);
+const fx=(v,d=2)=>Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const egp=(v,d=2)=>S.lang==='ar'?`${n(fx(v,d))} ج.م`:`EGP ${fx(v,d)}`;
+const nm=o=>Array.isArray(o)?(S.lang==='ar'?o[1]:o[0]):o;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- State ---------- */
+const HOSTS={
+ ahmed:{name:['Ahmed R.','أحمد ر.'],type:'host',price:6,kw:3,rating:4.9,sessions:212,area:['Nasr City, Cairo','مدينة نصر، القاهرة'],dist:0.8,x:64,y:50,solar:2.4,soc:78,avail:3.0},
+ station:{name:['Abbas El-Akkad Station','محطة عباس العقاد'],type:'station',price:5,kw:22,rating:4.6,sessions:1840,area:['Abbas El-Akkad St.','شارع عباس العقاد'],dist:1.6,x:34,y:30,solar:0,soc:0,avail:22},
+ van:{name:['Mobile Van #7','الشاحنة المتنقلة ٧'],type:'van',price:7,kw:7.4,rating:4.8,sessions:530,area:['Heliopolis · on the move','مصر الجديدة · متنقلة'],dist:2.1,x:26,y:66,eta:12,solar:0,soc:91,avail:40},
+ mona:{name:['Mona K.','منى ك.'],type:'host',price:5.5,kw:3.6,rating:4.7,sessions:96,area:['Makram Ebeid, Nasr City','مكرم عبيد، مدينة نصر'],dist:1.2,x:68,y:78,solar:3.1,soc:84,avail:3.6},
+ hany:{name:['Hany S.','هاني س.'],type:'host',price:6.5,kw:5,rating:4.8,sessions:143,area:['El-Tayaran St.','شارع الطيران'],dist:1.9,x:20,y:40,solar:1.7,soc:65,avail:4.2}
+};
+const S={
+ lang:'en', mode:'driver', authed:false, onbStep:1,
+ stack:['map'], sel:'ahmed', filter:'all', q:'', slot:'6:30 PM', rail:'InstaPay',
+ wallet:342.5, points:620,
+ activity:[
+  {t:['Charging','شحن'],d:['Today','اليوم'],a:-18,i:'zap'},
+  {t:['Top-up','شحن رصيد'],d:['Yesterday','أمس'],a:200,i:'card'},
+  {t:['Redemption','استبدال نقاط'],d:['Aug 2','٢ أغسطس'],a:0,i:'gift'},
+  {t:['Van call','طلب شاحنة'],d:['Jul 29','٢٩ يوليو'],a:-96.5,i:'truck'}
+ ],
+ bookings:[],
+ past:[
+  {host:'mona',when:['Aug 18 · 7:00 PM','١٨ أغسطس · ٧:٠٠ م'],kwh:6.2,cost:34.1},
+  {host:'station',when:['Aug 11 · 1:30 PM','١١ أغسطس · ١:٣٠ م'],kwh:14.8,cost:74},
+ ],
+ session:null, lastSummary:null, rating:0,
+ bookSeg:'up', rewardCat:'all', cfgTier:1, finance:'valU',
+ posts:[
+  {who:['Marwa S.','مروة س.'],ago:['12m','١٢ د'],i:'user',txt:['Anyone hosting near Abbas El-Akkad tonight? My charge is at 15%.','هل يوجد مضيف قرب عباس العقاد الليلة؟ شحن سيارتي ١٥٪.'],likes:4},
+  {who:['Ambassador · Youssef','السفير · يوسف'],ago:['1h','١ س'],i:'home',txt:['New host onboarding session Thursday 6pm — bring your rooftop questions!','جلسة تعريفية للمضيفين الجدد الخميس ٦ مساءً — أحضروا أسئلتكم عن الأسطح الشمسية!'],likes:18},
+  {who:['Karim H.','كريم ح.'],ago:['3h','٣ س'],i:'star',txt:['Left a 5★ review for Ahmed R. — smooth pickup, honest pricing.','تركت تقييم ٥★ لأحمد ر. — تجربة سلسة وسعر عادل.'],likes:9}
+ ],
+ mq:'', sos:null,
+ host:{accepting:true,price:6,earnings:9240,solar:3.1,soc:82,shared:2.4,sessLeft:41,paid:[
+   {m:['Aug 15','١٥ أغسطس'],a:4620,st:'sched'},{m:['Jul 31','٣١ يوليو'],a:4180,st:'paid'},{m:['Jul 15','١٥ يوليو'],a:3890,st:'paid'},{m:['Jun 30','٣٠ يونيو'],a:3710,st:'paid'}]}
+};
+const DRIVER_TABS=[['map','pin',['Map','الخريطة']],['bookings','cal',['Bookings','الحجوزات']],['wallet','card',['Wallet','المحفظة']],['community','users',['Community','المجتمع']],['profile','user',['Profile','حسابي']]];
+const HOST_TABS=[['hfeed','act',['Live Feed','البث المباشر']],['hsessions','cal',['Sessions','الجلسات']],['hpayouts','dollar',['Payouts','المدفوعات']],['hservice','tool',['Service','الصيانة']],['hprofile','user',['Profile','حسابي']]];
+const TAB_OF={host:'map',confirm:'bookings',session:'bookings',summary:'bookings',rewards:'wallet',route:'map',sos:'map',market:'community',config:'community',learn:'community',listing:'hservice'};
+
+/* ---------- Shell ---------- */
+const $=s=>document.querySelector(s);
+const cur=()=>S.stack[S.stack.length-1];
+function go(scr){S.stack.push(scr);render(true)}
+function back(){if(S.stack.length>1){S.stack.pop();render(true)}}
+function tab(t){S.stack=[t];render(true)}
+function hdr(title,opts={}){
+  const b=opts.noBack?'':`<button class="iconbtn" data-a="back" aria-label="${L('Back','رجوع')}">${ic('back','flip')}</button>`;
+  return `<div class="hdr">${b}<h1>${title}</h1>${opts.right||''}</div>`;
+}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2300)}
+function sheet(html){$('#sheet').innerHTML='<div class="grab"></div>'+html;$('#sheet').classList.add('on');$('#scrim').classList.add('on')}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on')}
+
+function render(anim){
+  document.documentElement.lang=S.lang;
+  document.documentElement.dir=S.lang==='ar'?'rtl':'ltr';
+  const sc=$('#screen');
+  let html;
+  if(!S.authed){html=V.onboarding();$('#tabbar').hidden=true;sc.classList.add('nopad')}
+  else{
+    const name=cur(); html=(V[name]||V.map)();
+    sc.classList.toggle('nopad',name==='map'||name==='sos');
+    const tabs=S.mode==='host'?HOST_TABS:DRIVER_TABS;
+    const active=TAB_OF[name]||name;
+    $('#tabbar').hidden=false;
+    $('#tabbar').innerHTML=tabs.map(([k,i,lbl])=>`<button data-tab="${k}" class="${active===k?'on':''}" aria-label="${nm(lbl)}">${ic(i)}<span>${nm(lbl)}</span></button>`).join('');
+  }
+  sc.innerHTML=`<div class="${anim?'enter':''}" style="min-height:100%;${cur()==='map'&&S.authed?'height:100%':''}">${html}</div>`;
+  if(anim) sc.scrollTop=0;
+  $('#app').scrollTop=0;
+}
+
+/* ---------- Views ---------- */
+const V={};
+
+V.onboarding=()=>{
+  if(S.onbStep===2) return `<div class="onb">
+    <button class="iconbtn" style="background:rgba(255,255,255,.1);border:0;color:#fff" data-a="onbBack" aria-label="${L('Back','رجوع')}">${ic('back','flip')}</button>
+    <div class="logo">${ic('lock')}</div>
+    <h1 style="font-size:22px;letter-spacing:0">${L('Enter verification code','أدخل رمز التحقق')}</h1>
+    <p class="tag">${L('We sent a 4-digit code to','أرسلنا رمزاً مكوناً من ٤ أرقام إلى')} <b dir="ltr">${esc(S.phone||'')}</b></p>
+    <div class="otp">${[0,1,2,3].map(i=>`<input inputmode="numeric" maxlength="1" data-otp="${i}" aria-label="digit ${i+1}">`).join('')}</div>
+    <div class="err center" id="otpErr"></div>
+    <div style="flex:1"></div>
+    <button class="btn amber" data-a="verify">${L('Verify & Continue','تحقق ومتابعة')}</button>
+    <p class="center sub" style="color:rgba(255,255,255,.6);margin-top:14px">${L('Demo: any 4 digits work','تجريبي: أي ٤ أرقام تعمل')}</p>
+  </div>`;
+  return `<div class="onb">
+    <div class="logo">${ic('batt')}</div>
+    <h1>EVAPP</h1>
+    <p class="tag">${L('Community solar EV charging','شحن السيارات الكهربائية بالطاقة الشمسية المجتمعية')}</p>
+    <label class="srOnly" for="nid">National ID</label>
+    <div class="field dark">${ic('shield')}<input id="nid" inputmode="numeric" maxlength="14" placeholder="${L('Bitaqa Qawmia (National ID) — 14 digits','بطاقة الرقم القومي — ١٤ رقماً')}" value="${esc(S.nid||'')}"></div>
+    <div style="height:12px"></div>
+    <label class="srOnly" for="mob">Mobile</label>
+    <div class="field dark">${ic('phone')}<input id="mob" inputmode="tel" maxlength="11" placeholder="${L('Mobile number — OTP (01xxxxxxxxx)','رقم الموبايل — رمز OTP')}" value="${esc(S.phone||'')}"></div>
+    <div class="err" id="onbErr"></div>
+    <button class="btn amber" data-a="onbNext" style="margin-top:8px">${L('Continue','متابعة')}</button>
+    <p class="center" style="margin:14px 0 0"><button class="link" data-a="demoFill">${L('Use demo details','استخدم بيانات تجريبية')}</button></p>
+    <div style="flex:1;min-height:30px"></div>
+    <p class="center"><button class="link" data-a="lang">العربية / English</button></p>
+    <p class="center" style="font-size:11px;opacity:.6;margin:6px 0 0">${L('Digital Egypt-verified · Law 151/2020','موثّق عبر مصر الرقمية · قانون ١٥١ لسنة ٢٠٢٠')}</p>
+  </div>`;
+};
+
+function mapSvg(route){
+  return `<svg class="mapsvg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+   <rect width="100" height="100" fill="#E4EEE8"/>
+   ${[[6,8,22,14],[34,6,20,12],[60,10,30,16],[4,30,14,20],[46,26,22,14],[74,34,22,12],[8,56,30,12],[46,50,12,16],[70,54,24,10],[4,76,26,18],[40,74,24,20],[72,72,24,22]].map(r=>`<rect x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}" rx="1.5" fill="#D3E3D9"/>`).join('')}
+   <path d="M88 0 C80 30 94 55 84 100" stroke="#BFD9EA" stroke-width="7" fill="none"/>
+   <g stroke="#fff" stroke-width="2.4" fill="none"><path d="M0 24H100M0 48H100M0 70H100M30 0V100M58 0V100M20 0 L96 100"/></g>
+   <circle cx="60" cy="88" r="7" fill="#CDE5D5"/>
+   ${route?'<path d="M18 88 C30 70 48 64 58 46 S82 18 90 10" stroke="#1B5E3A" stroke-width="1.6" stroke-dasharray="3 2.2" fill="none"/>':''}
+  </svg>`;
+}
+
+V.map=()=>{
+  const q=S.q.trim().toLowerCase();
+  const list=Object.entries(HOSTS).filter(([k,h])=>(S.filter==='all'||h.type===S.filter)&&(!q||[...h.name,...h.area].join(' ').toLowerCase().includes(q)));
+  if(!list.find(([k])=>k===S.sel)&&list.length) S.sel=list[0][0];
+  const h=HOSTS[S.sel];
+  const pins=list.map(([k,p])=>{
+    const lbl=p.type==='van'?L(`Van · ${p.eta}m`,`شاحنة · ${n(p.eta)} د`):L(`EGP ${p.price}/kWh`,`${n(p.price)} ج/ك.و.س`);
+    const i=p.type==='van'?'truck':p.type==='station'?'zap':'sun';
+    return `<button class="pin ${k===S.sel?'sel':''}" style="left:${p.x}%;top:${p.y}%" data-a="selPin" data-k="${k}" aria-label="${esc(nm(p.name))}"><span class="lbl">${lbl}</span><span class="dot ${p.type}">${ic(i)}</span></button>`;
+  }).join('');
+  const f=[['all',['All','الكل']],['host',['Solar hosts','مضيفون بالطاقة الشمسية']],['station',['Stations','محطات']],['van',['Vans','شاحنات']]];
+  return `<div class="mapwrap">${mapSvg()}${pins}
+    <div class="pin me" style="left:52%;top:62%"><span class="dot"></span></div>
+    <div class="maptop">
+      <div class="field">${ic('search')}<input id="q" placeholder="${L('Search hosts, stations…','بحث عن مضيفين، محطات…')}" value="${esc(S.q)}" aria-label="search"><button data-a="filterSheet" aria-label="filter" style="color:var(--forest)">${ic('filter')}</button></div>
+      <div class="pills">${f.map(([k,l])=>`<button class="pill ${S.filter===k?'on':''}" data-a="filter" data-k="${k}">${nm(l)}</button>`).join('')}</div>
+    </div>
+    <div class="fabs">
+      <button class="fab" data-go="route" aria-label="${L('Route planner','تخطيط المسار')}">${ic('nav')}</button>
+      <button class="fab sos" data-go="sos" aria-label="SOS">SOS</button>
+    </div>
+    ${h&&list.length?`<div class="card mapcard">
+      <div class="row">
+        <div class="chip-i ${h.type==='station'?'amber':''}">${ic(h.type==='van'?'truck':h.type==='station'?'zap':'sun')}</div>
+        <div class="grow"><div class="t">${esc(nm(h.name))} · ${n(h.rating)} ★</div>
+          <div class="sub">${h.type==='van'?L(`ETA ${h.eta} min · EGP ${h.price}/kWh`,`الوصول ${n(h.eta)} د · ${n(h.price)} ج/ك.و.س`):L(`${h.avail} kW avail. · EGP ${h.price}/kWh · ${h.dist} km`,`متاح ${n(h.avail)} ك.و · ${n(h.price)} ج/ك.و.س · ${n(h.dist)} كم`)}</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn ghost sm" style="flex:1" data-a="directions">${ic('nav')} ${L('Directions','الاتجاهات')}</button>
+        ${h.type==='van'?`<button class="btn sm" style="flex:1" data-go="sos">${L('Call van','اطلب الشاحنة')}</button>`:`<button class="btn sm" style="flex:1" data-go="host">${L('View & Book','عرض وحجز')}</button>`}
+      </div></div>`:`<div class="card mapcard center sub">${L('No results — try another search','لا توجد نتائج — جرّب بحثاً آخر')}</div>`}
+  </div>`;
+};
+
+V.host=()=>{
+  const h=HOSTS[S.sel]; const est=h.avail*h.price;
+  const slots=[['5:00 PM','٥:٠٠ م',true],['6:30 PM','٦:٣٠ م',true],['8:00 PM','٨:٠٠ م',true],['9:30 PM','٩:٣٠ م',false]];
+  return `${hdr(esc(nm(h.name)))}
+  <div class="pad" style="padding-top:0">
+    <div class="card" style="background:#E6F3EB;border-color:#CFE7D8">
+      <div class="row"><div class="chip-i" style="background:#fff">${ic(h.type==='station'?'zap':'sun')}</div>
+        <div class="grow"><div class="row" style="gap:8px"><span class="t">${esc(nm(h.name))}</span><span class="badge">${ic('check')}${L('Verified','موثّق')}</span></div>
+        <div class="sub">★ ${n(h.rating)} · ${L(`${h.sessions} sessions`,`${n(h.sessions)} جلسة`)}</div></div></div>
+      <div style="font-size:22px;font-weight:800;margin-top:12px">${egp(h.price)} <span class="sub">/ ${L('kWh','ك.و.س')}</span></div>
+      <div class="sub">${esc(nm(h.area))} · ${n(h.dist)} ${L('km','كم')}</div>
+    </div>
+    <h2 class="sec">${L('Live energy feed','البث المباشر للطاقة')} <span class="pulse" style="color:var(--leaf)">●</span></h2>
+    <div class="stats">
+      <div class="stat">${ic('sun')}<b id="lfSolar" class="num">${n(h.solar.toFixed(1))} kW</b><span>${L('Solar now','الطاقة الآن')}</span></div>
+      <div class="stat">${ic('batt')}<b id="lfSoc" class="num">${n(h.soc)}%</b><span>${L('Battery SoC','شحن البطارية')}</span></div>
+      <div class="stat">${ic('zap')}<b class="num">${n(h.avail.toFixed(1))} kWh</b><span>${L('Available','متاح')}</span></div>
+    </div>
+    <h2 class="sec">${L('Choose a time slot','اختر موعداً')}</h2>
+    <div class="pills">${slots.map(s=>`<button class="pill ${S.slot===s[0]?'on':''}" ${s[2]?'':'disabled style="opacity:.4;text-decoration:line-through"'} data-a="slot" data-k="${s[0]}">${L(s[0],s[1])}</button>`).join('')}</div>
+    <p class="sub" style="margin:8px 0 0">${L('Advance booking up to 48 hrs ahead','الحجز المسبق حتى ٤٨ ساعة')}</p>
+    <div class="card" style="margin-top:16px">
+      <div class="row"><span class="grow sub">${L('Estimated energy','الطاقة المتوقعة')}</span><b>${n(h.avail.toFixed(1))} kWh</b></div>
+      <div class="row" style="margin-top:8px"><span class="grow sub">${L('Estimated total','الإجمالي التقديري')}</span><b>${egp(est)}</b></div>
+      <div class="row" style="margin-top:8px"><span class="grow sub">${L('Paid from wallet','الدفع من المحفظة')}</span><b>${egp(S.wallet)}</b></div>
+    </div>
+    <div style="height:14px"></div>
+    <button class="btn" data-a="book">${L(`Book Slot · ~EGP ${fx(est,0)}`,`احجز الموعد · ~${n(fx(est,0))} ج.م`)}</button>
+    <p class="sub center" style="margin-top:10px">${ic('shield')} ${L('No-show protection · Free cancellation 1 hr ahead','حماية من عدم الحضور · إلغاء مجاني قبل ساعة')}</p>
+  </div>`;
+};
+
+V.confirm=()=>{
+  const b=S.bookings[S.bookings.length-1]; if(!b) return V.bookings(); const h=HOSTS[b.host];
+  return `<div class="pad center">
+    <div class="okicon">${ic('ok')}</div>
+    <h1 style="margin:0;font-size:22px">${L('Booking Confirmed','تم تأكيد الحجز')}</h1>
+    <p class="sub">${L('Today','اليوم')} · ${L(b.slot,slotAr(b.slot))}</p>
+    <div class="card" style="text-align:start;margin-top:18px">
+      <div class="row"><div class="chip-i">${ic('pin')}</div><div class="grow"><div class="t">${esc(nm(h.name))} · ${L('Host','مضيف')}</div><div class="sub">${esc(nm(h.area))}</div></div></div>
+      <div class="row" style="margin-top:12px"><div class="chip-i">${ic('dollar')}</div><div class="grow t">${L('Est. cost','التكلفة التقديرية')}</div><b>${egp(b.est)}</b></div>
+    </div>
+    <div class="card row" style="margin-top:10px;background:#E6F3EB;border-color:#CFE7D8;text-align:start">${ic('bell')}<span class="grow">${L('Reminder set 15 min before','تم ضبط تذكير قبل ١٥ دقيقة')}</span></div>
+    <div style="height:18px"></div>
+    <button class="btn" data-a="directions">${L('Get Directions','الاتجاهات')}</button>
+    <div style="height:10px"></div>
+    <button class="btn ghost" data-tab="bookings">${L('View in Bookings','عرض في الحجوزات')}</button>
+  </div>`;
+};
+const slotAr=s=>({'5:00 PM':'٥:٠٠ م','6:30 PM':'٦:٣٠ م','8:00 PM':'٨:٠٠ م','9:30 PM':'٩:٣٠ م'}[s]||s);
+
+V.bookings=()=>{
+  const s=S.session;
+  const up=S.bookings.map((b,i)=>{const h=HOSTS[b.host];return `<div class="card">
+    <div class="row"><div class="chip-i">${ic('sun')}</div><div class="grow"><div class="t">${esc(nm(h.name))}</div><div class="sub">${L('Today','اليوم')} · ${L(b.slot,slotAr(b.slot))} · ${esc(nm(h.area))}</div></div><span class="badge">${L('Confirmed','مؤكد')}</span></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn ghost sm" style="flex:1" data-a="cancelBk" data-i="${i}">${L('Cancel','إلغاء')}</button>
+      <button class="btn sm" style="flex:1" data-a="startSess" data-i="${i}" ${s?'disabled':''}>${ic('zap')} ${L("I've arrived — Start","وصلت — ابدأ الشحن")}</button>
+    </div></div>`}).join('');
+  const past=S.past.map(p=>{const h=HOSTS[p.host];return `<div class="item"><div class="chip-i">${ic('zap')}</div><div class="grow"><div class="t">${esc(nm(h.name))}</div><div class="sub">${nm(p.when)} · ${n(p.kwh)} kWh</div></div><span class="amt">${egp(p.cost)}</span></div>`}).join('');
+  return `${hdr(L('Bookings','الحجوزات'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    ${s?`<button class="card row" style="width:100%;text-align:start;background:var(--deep);color:#fff;border:0" data-go="session"><div class="chip-i" style="background:var(--amber);color:var(--deep)">${ic('zap')}</div><div class="grow"><div class="t">${L('Charging in progress','الشحن جارٍ')}</div><div style="opacity:.75;font-size:12px" id="bkLive">${n(s.kwh.toFixed(1))} kWh · ${egp(s.kwh*s.price)}</div></div>${ic('next','flip')}</button><div style="height:12px"></div>`:''}
+    <div class="seg"><button class="${S.bookSeg==='up'?'on':''}" data-a="bseg" data-k="up">${L('Upcoming','القادمة')} (${n(S.bookings.length)})</button><button class="${S.bookSeg==='past'?'on':''}" data-a="bseg" data-k="past">${L('Past','السابقة')}</button></div>
+    <div style="height:12px"></div>
+    ${S.bookSeg==='up'?(up||`<div class="card center"><div class="chip-i" style="margin:6px auto 10px">${ic('cal')}</div><div class="t">${L('No upcoming bookings','لا توجد حجوزات قادمة')}</div><p class="sub">${L('Find a solar host near you on the map.','ابحث عن مضيف بالطاقة الشمسية قريب منك.')}</p><button class="btn sm" style="margin:0 auto" data-tab="map">${L('Open map','افتح الخريطة')}</button></div>`):`<div class="card list">${past}</div>`}
+    <button class="card row" style="width:100%;margin-top:14px;text-align:start;background:var(--redbg);border-color:#F3CFC9" data-go="sos"><div class="chip-i red">${ic('alert')}</div><div class="grow"><div class="t">${L('Emergency charging','شحن طارئ')}</div><div class="sub">${L('Stranded? Request a mobile van','عالق؟ اطلب شاحنة شحن متنقلة')}</div></div>${ic('next','flip')}</button>
+  </div>`;
+};
+
+V.session=()=>{
+  const s=S.session; if(!s) return V.bookings();
+  const C=2*Math.PI*80, pct=Math.min(100,s.pct);
+  return `${hdr(L('Charging in progress','الشحن جارٍ'))}
+  <div class="pad" style="padding-top:0">
+    <div class="ring"><svg viewBox="0 0 190 190"><circle cx="95" cy="95" r="80" stroke="#E6EEE9" stroke-width="14" fill="none"/><circle id="ringArc" cx="95" cy="95" r="80" stroke="var(--leaf)" stroke-width="14" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg>
+      <div class="v"><div><b id="sPct" class="num">${n(Math.round(pct))}%</b><div class="sub pulse">${ic('zap')}</div></div></div></div>
+    <p class="center sub num" id="sTime">${fmtT(s.t)} ${L('elapsed','منقضي')}</p>
+    <div class="stats">
+      <div class="stat">${ic('sun')}<b id="sKwh" class="num">${n(s.kwh.toFixed(2))}</b><span>kWh ${L('delivered','مُسلّم')}</span></div>
+      <div class="stat">${ic('zap')}<b id="sKw" class="num">${n(s.kw.toFixed(1))} kW</b><span>${L('Solar now','الطاقة الآن')}</span></div>
+      <div class="stat">${ic('dollar')}<b id="sCost" class="num">${n(fx(s.kwh*s.price))}</b><span>${L('Running cost (EGP)','التكلفة (ج.م)')}</span></div>
+    </div>
+    <div class="card row" style="margin-top:12px;background:#E6F3EB;border-color:#CFE7D8">${ic('leaf')}<span class="grow"><b id="sCo2" class="num">${n((s.kwh*0.49).toFixed(1))}</b> ${L('kg CO2 avoided this session','كجم CO2 تم تجنبها في هذه الجلسة')}</span></div>
+    <div style="height:16px"></div>
+    <button class="btn red" data-a="stopSess">${L('Stop Session','إيقاف الجلسة')}</button>
+    <p class="sub center">${L('Auto-billed to wallet on completion · Telemetry every ≤10 s','خصم تلقائي من المحفظة عند الانتهاء · قراءة كل ≤١٠ ث')}</p>
+  </div>`;
+};
+const fmtT=t=>n([Math.floor(t/3600),Math.floor(t/60)%60,t%60].map(v=>String(v).padStart(2,'0')).join(':'));
+
+V.summary=()=>{
+  const r=S.lastSummary; if(!r) return V.bookings();
+  return `<div class="pad center">
+    <div class="okicon">${ic('ok')}</div>
+    <h1 style="margin:0;font-size:22px">${L('Session complete','اكتملت الجلسة')}</h1>
+    <p class="sub">${esc(nm(HOSTS[r.host].name))} · +20 ${L('pts','نقطة')}</p>
+    <div class="stats" style="margin-top:14px">
+      <div class="stat"><b>${n(r.kwh.toFixed(1))} kWh</b><span>${L('Delivered','مُسلّم')}</span></div>
+      <div class="stat"><b>${egp(r.cost)}</b><span>${L('Total cost','الإجمالي')}</span></div>
+      <div class="stat"><b>${n(r.co2.toFixed(1))} kg</b><span>${L('CO2 avoided','CO2 تم تجنبه')}</span></div>
+    </div>
+    <h2 class="sec" style="text-align:start">${L('Rate your host','قيّم المضيف')}</h2>
+    <div class="stars">${[1,2,3,4,5].map(i=>`<button class="${S.rating>=i?'on':''}" data-a="rate" data-k="${i}" aria-label="${i} stars">${ic('star')}</button>`).join('')}</div>
+    <div class="card" style="margin-top:18px;text-align:start">
+      <div class="row"><span class="badge amber">${L('Sponsored','إعلان ممول')}</span><span class="grow"></span>${ic('mega')}</div>
+      <div class="t" style="margin-top:8px">${L('EVAPP Maintenance Plan','خطة صيانة EVAPP')}</div>
+      <div class="sub">${L('Protect your host equipment from EGP 3,900/yr','احمِ معداتك بدءاً من ٣٬٩٠٠ ج.م/سنة')}</div>
+    </div>
+    <p class="sub">${L('Go ad-free with Silver+ membership','بدون إعلانات مع عضوية الفضية+')}</p>
+    <button class="btn" data-a="doneSummary">${L('Done','تم')}</button>
+  </div>`;
+};
+
+V.wallet=()=>`${hdr(L('Wallet','المحفظة'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    <div class="hero"><div class="k">${L('Available balance','الرصيد المتاح')}</div><div class="big num">${egp(S.wallet)}</div>
+      <button class="btn amber" data-a="topupSheet">${ic('plus')} ${L('Top Up','شحن الرصيد')}</button></div>
+    <h2 class="sec">${L('Pay with','الدفع عبر')}</h2>
+    <div class="pills">${['InstaPay','Meeza','Fawry','Vodafone Cash'].map(r=>`<button class="pill ${S.rail===r?'on':''}" data-a="rail" data-k="${r}">${r}</button>`).join('')}</div>
+    <button class="card row" style="width:100%;margin-top:14px;text-align:start" data-go="rewards">
+      <div class="chip-i amber">${ic('award')}</div><div class="grow"><div class="t">${L('Silver Member','عضو فضي')} · ${n(S.points)} ${L('pts','نقطة')}</div>
+      <div class="bar g" style="margin-top:6px"><i style="width:${Math.min(100,S.points/10)}%"></i></div></div>${ic('next','flip')}</button>
+    <h2 class="sec">${L('Recent activity','النشاط الأخير')}</h2>
+    <div class="card list">${S.activity.map(a=>`<div class="item"><div class="chip-i">${ic(a.i)}</div><div class="grow"><div class="t">${nm(a.t)}</div><div class="sub">${nm(a.d)}</div></div><span class="amt ${a.a>0?'pos':'neg'}">${a.a>0?'+':a.a<0?'−':''}${egp(Math.abs(a.a))}</span></div>`).join('')}</div>
+  </div>`;
+
+const REWARDS=[
+ {k:'charge',i:'zap',t:['Free charge','شحن مجاني'],d:['30 min','٣٠ دقيقة'],p:250},
+ {k:'maint',i:'tool',t:['Service credit','رصيد صيانة'],d:['Maintenance','صيانة'],p:400},
+ {k:'maint',i:'pkg',t:['Spare parts','قطع غيار'],d:['20% off','خصم ٢٠٪'],p:150},
+ {k:'partner',i:'bag',t:['Retail voucher','قسيمة شراء'],d:['Partner offer','عرض شريك'],p:300}
+];
+V.rewards=()=>{
+  const cats=[['all',['All','الكل']],['charge',['Charging','الشحن']],['maint',['Maintenance','الصيانة']],['partner',['Partners','الشركاء']]];
+  const items=REWARDS.filter(r=>S.rewardCat==='all'||r.k===S.rewardCat);
+  const tier=S.points>=1000?2:S.points>=300?1:0;
+  return `${hdr(L('Loyalty & rewards','الولاء والمكافآت'))}
+  <div class="pad" style="padding-top:0">
+    <div class="hero"><div class="row">${ic('award')}<b style="font-size:17px">${[L('Bronze Member','عضو برونزي'),L('Silver Member','عضو فضي'),L('Gold Member','عضو ذهبي')][tier]}</b></div>
+      <div style="margin:10px 0 8px;opacity:.85" class="num">${tier<2?L(`${S.points} / 1,000 pts to Gold`,`${n(S.points)} / ${n('1,000')} نقطة للذهبي`):L(`${S.points} pts`,`${n(S.points)} نقطة`)}</div>
+      <div class="bar"><i style="width:${Math.min(100,S.points/10)}%"></i></div>
+      <div style="font-size:12px;opacity:.75;margin-top:10px">${L('Priority booking · Ad-free · Reduced fees','أولوية الحجز · بدون إعلانات · رسوم مخفضة')}</div></div>
+    <h2 class="sec">${L('Tiers','المستويات')}</h2>
+    <div class="tiers">${[L('Bronze','برونزي'),L('Silver','فضي'),L('Gold','ذهبي'),L('Platinum','بلاتيني')].map((t,i)=>`<div class="${i===tier?'on':''}">${t}</div>`).join('')}</div>
+    <h2 class="sec">${L('Redeem your points','استبدل نقاطك')}</h2>
+    <div class="pills">${cats.map(([k,l])=>`<button class="pill ${S.rewardCat===k?'on':''}" data-a="rcat" data-k="${k}">${nm(l)}</button>`).join('')}</div>
+    <div style="height:10px"></div>
+    ${items.map(r=>`<div class="card row"><div class="chip-i">${ic(r.i)}</div><div class="grow"><div class="t">${nm(r.t)}</div><div class="sub">${nm(r.d)} · ${n(r.p)} ${L('pts','نقطة')}</div></div><button class="btn light sm" data-a="redeem" data-k="${REWARDS.indexOf(r)}" ${S.points<r.p?'disabled':''}>${L('Redeem','استبدال')}</button></div>`).join('')}
+    <h2 class="sec">${L('Earn points for','اكسب نقاطاً مقابل')}</h2>
+    <div class="card list">${[['zap',['Sessions','الجلسات'],20],['users',['Referrals','الإحالات'],150],['star',['Reviews','التقييمات'],10],['home',['Ambassador','سفير'],50]].map(([i,t,p])=>`<div class="item"><div class="chip-i">${ic(i)}</div><div class="grow t">${nm(t)}</div><b class="pos">+${n(p)} ${L('pts','نقطة')}</b></div>`).join('')}</div>
+    <div style="height:14px"></div>
+    <button class="btn amber" data-a="refer">${L('Refer a Friend','ادعُ صديقاً')}</button>
+  </div>`;
+};
+
+V.community=()=>`${hdr(L('Community','المجتمع'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    <div class="grid2">
+      <button class="quick" data-go="market"><div class="chip-i">${ic('bag')}</div><b>${L('EV Marketplace','سوق السيارات الكهربائية')}</b></button>
+      <button class="quick" data-go="config"><div class="chip-i amber">${ic('home')}</div><b>${L('Home charger','شاحن منزلي')}</b></button>
+      <button class="quick" data-go="route"><div class="chip-i">${ic('nav')}</div><b>${L('Route planner','تخطيط المسار')}</b></button>
+      <button class="quick" data-go="learn"><div class="chip-i">${ic('book')}</div><b>${L('Learning hub','مركز التعلم')}</b></button>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="row"><div class="chip-i">${ic('users')}</div><div class="grow"><div class="t">${L('Nasr City EV Owners','ملاك السيارات الكهربائية بمدينة نصر')}</div><div class="sub">${L('1,204 members · 27 active today','١٬٢٠٤ عضو · ٢٧ نشط اليوم')}</div></div><span class="badge">${L('Joined','مشترك')}</span></div>
+    </div>
+    <h2 class="sec">${L('Neighborhood feed','أخبار الحي')}</h2>
+    ${S.posts.map((p,i)=>`<div class="post"><div class="row"><div class="chip-i">${ic(p.i)}</div><div class="grow t">${esc(nm(p.who))}</div><span class="sub">${nm(p.ago)}</span></div><p>${esc(nm(p.txt))}</p>
+      <div class="row" style="margin-top:10px;gap:16px"><button class="sub row" style="gap:6px" data-a="like" data-i="${i}">${ic('star')} ${n(p.likes)}</button><button class="sub" data-a="reply">${L('Reply','رد')}</button></div></div>`).join('')}
+    <div style="height:14px"></div>
+    <button class="btn" data-a="postSheet">${ic('plus')} ${L('New Post','منشور جديد')}</button>
+  </div>`;
+
+V.learn=()=>`${hdr(L('Learning hub','مركز التعلم'))}
+  <div class="pad" style="padding-top:0">
+   ${[['sun',['How rooftop solar hosting works','كيف تعمل استضافة الطاقة الشمسية'],['5 min read','قراءة ٥ دقائق']],['batt',['Charging etiquette at a neighbor’s home','آداب الشحن في منزل الجار'],['3 min read','قراءة ٣ دقائق']],['shield',['Safety: cables, weather & anti-islanding','السلامة: الكابلات والطقس والحماية'],['6 min read','قراءة ٦ دقائق']],['dollar',['Understanding per-kWh pricing','فهم التسعير لكل ك.و.س'],['4 min read','قراءة ٤ دقائق']]].map(([i,t,d])=>`<button class="card row" style="width:100%;text-align:start" data-a="soon"><div class="chip-i">${ic(i)}</div><div class="grow"><div class="t">${nm(t)}</div><div class="sub">${nm(d)}</div></div>${ic('next','flip')}</button>`).join('')}
+  </div>`;
+
+const MARKET=[
+ {i:'car',t:['2022 Nissan Leaf','نيسان ليف ٢٠٢٢'],d:['EGP 820,000 · Giza · Dealer','٨٢٠٬٠٠٠ ج.م · الجيزة · وكيل'],sp:true},
+ {i:'zap',t:['11kW Home Charger (new)','شاحن منزلي ١١ ك.و (جديد)'],d:['EGP 68,000 · Certified installer','٦٨٬٠٠٠ ج.م · مُركّب معتمد'],sp:false},
+ {i:'mega',t:['EVAPP Home Insurance','تأمين المنزل من EVAPP'],d:['Partner offer','عرض شريك'],sp:true},
+ {i:'car',t:['2023 MG4 Electric','إم جي ٤ الكهربائية ٢٠٢٣'],d:['EGP 1,150,000 · Cairo · Private','١٬١٥٠٬٠٠٠ ج.م · القاهرة · مالك'],sp:false},
+ {i:'pkg',t:['Type 2 charging cable 7m','كابل شحن Type 2 بطول ٧ م'],d:['EGP 4,200 · New','٤٬٢٠٠ ج.م · جديد'],sp:false}
+];
+V.market=()=>{
+  const q=S.mq.trim().toLowerCase();
+  const it=MARKET.filter(m=>!q||m.t.join(' ').toLowerCase().includes(q));
+  return `${hdr(L('EV Marketplace','سوق السيارات الكهربائية'))}
+  <div class="pad" style="padding-top:0">
+    <div class="field">${ic('search')}<input id="mq" placeholder="${L('Search EVs, chargers, parts…','ابحث عن سيارات، شواحن، قطع…')}" value="${esc(S.mq)}"></div>
+    <div style="height:12px"></div>
+    ${it.map(m=>`<button class="card row" style="width:100%;text-align:start" data-a="soon"><div class="chip-i">${ic(m.i)}</div><div class="grow"><div class="t">${nm(m.t)}</div><div class="sub">${nm(m.d)}</div>${m.sp?`<span class="badge amber" style="margin-top:6px">${L('Sponsored','إعلان ممول')}</span>`:''}</div>${ic('next','flip')}</button>`).join('')||`<p class="sub center">${L('No listings found','لا توجد إعلانات')}</p>`}
+    <div style="height:10px"></div>
+    <button class="btn ghost" data-a="soon">${ic('plus')} ${L('List an item','أضف إعلاناً')}</button>
+  </div>`;
+};
+
+V.config=()=>{
+  const T=[['Basic · 3.6–7.4 kW','أساسي · ٣٫٦–٧٫٤ ك.و','EGP 23,000–58,000','٢٣٬٠٠٠–٥٨٬٠٠٠ ج.م'],['Standard · 7.4–11 kW','قياسي · ٧٫٤–١١ ك.و','EGP 59,000–110,000','٥٩٬٠٠٠–١١٠٬٠٠٠ ج.م'],['Premium · 11–22 kW','مميز · ١١–٢٢ ك.و','EGP 110,000–220,000','١١٠٬٠٠٠–٢٢٠٬٠٠٠ ج.م']];
+  return `${hdr(L('Home charger','الشاحن المنزلي'))}
+  <div class="pad" style="padding-top:0">
+    <p class="sub" style="margin-top:0">${L('Configure your home charger — hosting stays optional.','اختر شاحنك المنزلي — الاستضافة اختيارية.')}</p>
+    ${T.map((t,i)=>`<button class="opt ${S.cfgTier===i?'on':''}" data-a="cfg" data-k="${i}"><div class="chip-i">${ic('zap')}</div><div class="grow"><div class="t">${L(t[0],t[1])}</div><div class="sub">${L(t[2],t[3])}</div></div><span class="check">${ic('check')}</span></button>`).join('')}
+    <div class="card row" style="margin-top:12px;background:#FFF8EC;border-color:#F6DDB2"><div class="chip-i amber">${ic('sun')}</div><div class="grow"><div class="t">${L('Solar pairing: 5–10 kW rooftop','اقتراح: سطح شمسي ٥–١٠ ك.و')}</div><div class="sub">${L('Est. hosting income if shared later: EGP 7,150–13,650/mo','الدخل المتوقع عند المشاركة: ٧٬١٥٠–١٣٬٦٥٠ ج.م/شهر')}</div></div></div>
+    <h2 class="sec">${L('Financing','التمويل')}</h2>
+    <div class="pills">${['valU','Aman','Souhoola','Contact'].map(f=>`<button class="pill ${S.finance===f?'on':''}" data-a="fin" data-k="${f}">${f}</button>`).join('')}</div>
+    <p class="sub">${L('24–48 month installment plans available','خطط تقسيط من ٢٤ إلى ٤٨ شهراً')}</p>
+    <button class="btn amber" data-a="subsidy">${L('Check Subsidy Eligibility','تحقق من أهلية الدعم')}</button>
+  </div>`;
+};
+
+V.route=()=>`${hdr(L('Route planner','تخطيط المسار'))}
+  <div class="pad" style="padding-top:0">
+    <div class="routeMap">${mapSvg(true)}
+      <div class="pin" style="left:18%;top:92%"><span class="dot host" style="width:28px;height:28px">${ic('target')}</span></div>
+      <div class="pin" style="left:58%;top:50%"><span class="dot station" style="width:30px;height:30px">${ic('zap')}</span></div>
+      <div class="pin" style="left:90%;top:14%"><span class="dot host" style="width:28px;height:28px">${ic('pin')}</span></div></div>
+    <div class="card" style="margin-top:12px">
+      <div class="t">${L('Cairo → Hurghada · 462 km','القاهرة ← الغردقة · ٤٦٢ كم')}</div>
+      <div class="sub">${L('1 charge stop recommended · +38 min','يُنصح بمحطة شحن واحدة · +٣٨ دقيقة')}</div>
+    </div>
+    <h2 class="sec">${L('Charge stop · Suez host','محطة الشحن · مضيف السويس')}</h2>
+    <div class="card"><div class="row"><div class="chip-i">${ic('sun')}</div><div class="grow"><div class="t">${L('Nour A. · 4.8 ★','نور أ. · ٤٫٨ ★')}</div><div class="sub">${L('On route · adds 22 min','على الطريق · +٢٢ دقيقة')}</div></div><span class="badge">${L('EGP 6/kWh','٦ ج/ك.و.س')}</span></div>
+      <div class="stats" style="margin-top:12px"><div class="stat"><b>${n('3.1')} kW</b><span>${L('Solar now','الطاقة الآن')}</span></div><div class="stat"><b>${n(85)}%</b><span>${L('Battery SoC','شحن البطارية')}</span></div><div class="stat"><b>${n('4.9')}</b><span>${L('Trust','الثقة')}</span></div></div></div>
+    <div style="height:14px"></div>
+    <button class="btn" data-a="startRoute">${ic('nav')} ${L('Start Route','ابدأ المسار')}</button>
+  </div>`;
+
+V.sos=()=>{
+  const s=S.sos;
+  return `<div class="sosbg"><div style="padding-top:var(--sat)">${hdr(L('Emergency charging','شحن طارئ'))}</div>
+  <div class="pad center" style="padding-top:0">
+    <div style="color:var(--red);margin:10px auto"><svg class="i" viewBox="0 0 24 24" style="width:72px;height:72px">${IC.alert}</svg></div>
+    <h1 style="margin:0;font-size:22px">${s?L('Help is on the way','المساعدة في الطريق'):L('Stranded? Get help now','عالق؟ احصل على المساعدة الآن')}</h1>
+    <p class="sub">${L('One-tap request, prioritized in the mobile-van dispatch queue','طلب بلمسة واحدة، بأولوية في قائمة الشاحنات المتنقلة')}</p>
+    ${s?`<div class="card" style="text-align:start;margin-top:16px"><div class="stepline">
+        <div class="done"><i></i><span class="grow">${L('Request received','تم استلام الطلب')}</span></div>
+        <div class="${s.stage>=1?'done':'cur'}"><i></i><span class="grow">${L('Van #7 dispatched','تم إرسال الشاحنة ٧')}</span></div>
+        <div class="${s.stage>=2?'done':s.stage===1?'cur':''}"><i></i><span class="grow">${L('Van en route · ETA 20–40 min','الشاحنة في الطريق · ٢٠–٤٠ دقيقة')}</span></div>
+      </div></div>
+      <div style="height:12px"></div><button class="btn ghost" data-a="cancelSos">${L('Cancel request','إلغاء الطلب')}</button>`
+    :`<div style="height:18px"></div><button class="btn red" style="min-height:64px;font-size:17px;border-radius:99px" data-a="sos">SOS — ${L('Request Van','اطلب شاحنة')}</button>`}
+    <div class="card" style="text-align:start;margin-top:16px">
+      <div class="row"><div class="chip-i">${ic('pin')}</div><div class="grow"><div class="t">${L('Location shared','تمت مشاركة الموقع')}</div><div class="sub">${L('Ring Road, near Km 24','الطريق الدائري، قرب الكيلو ٢٤')}</div></div></div>
+      <div class="row" style="margin-top:12px"><div class="chip-i">${ic('clock')}</div><div class="grow t">${L('ETA','وقت الوصول')}</div><b>${L('20–40 min','٢٠–٤٠ دقيقة')}</b></div>
+    </div>
+    <div class="card row" style="margin-top:10px;text-align:start">${ic('nav')}<div class="grow"><div class="t">${L('Fallback: nearest host in 1.2 km','بديل: أقرب مضيف على بعد ١٫٢ كم')}</div><div class="sub">${L('Auto-cancels if a host/station becomes available first','يُلغى تلقائياً إذا توفر مضيف أو محطة أولاً')}</div></div></div>
+  </div></div>`;
+};
+
+V.profile=()=>`${hdr(L('Profile','حسابي'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    <div class="card row"><div class="chip-i" style="width:56px;height:56px;font-weight:800;font-size:18px">MT</div>
+      <div class="grow"><div class="t" style="font-size:16px">${L('Mohamad T.','محمد ت.')}</div><div class="sub">${L('Driver · Member since 2026','سائق · عضو منذ ٢٠٢٦')}</div>
+      <span class="badge" style="margin-top:6px">${ic('shield')} ${L('National ID-verified','موثّق بالرقم القومي')}</span></div></div>
+    <div class="stats" style="margin-top:10px"><div class="stat"><b>${n('4.8')}</b><span>${L('Trust score','درجة الثقة')}</span></div><div class="stat"><b>${n(38)}</b><span>${L('Sessions','الجلسات')}</span></div><div class="stat"><b>${n(S.points)}</b><span>${L('Points','النقاط')}</span></div></div>
+    <h2 class="sec">${L('Vehicle','المركبة')}</h2>
+    <div class="card row"><div class="chip-i">${ic('car')}</div><div class="grow"><div class="t">MG4 Electric · 64 kWh</div><div class="sub">${L('Type 2 · CCS2 · Plate ق ر ب 1234','Type 2 · CCS2 · لوحة ق ر ب ١٢٣٤')}</div></div><button class="sub" data-a="soon">${ic('edit')}</button></div>
+    <h2 class="sec">${L('Settings','الإعدادات')}</h2>
+    <div class="card list">
+      <button class="item" style="width:100%;text-align:start" data-a="lang"><div class="chip-i">${ic('globe')}</div><div class="grow t">${L('Language','اللغة')}</div><span class="badge gray">${L('English','العربية')}</span></button>
+      <button class="item" style="width:100%;text-align:start" data-a="hostMode"><div class="chip-i amber">${ic('sun')}</div><div class="grow"><div class="t">${L('Switch to Host mode','التحويل إلى وضع المضيف')}</div><div class="sub">${L('Share your rooftop solar & earn','شارك طاقتك الشمسية واربح')}</div></div>${ic('swap')}</button>
+      <button class="item" style="width:100%;text-align:start" data-a="notif"><div class="chip-i">${ic('bell')}</div><div class="grow t">${L('Booking reminders','تذكيرات الحجز')}</div><span class="toggle ${S.notif!==false?'on':''}"></span></button>
+      <button class="item" style="width:100%;text-align:start" data-a="soon"><div class="chip-i">${ic('help')}</div><div class="grow t">${L('Help & support','المساعدة والدعم')}</div>${ic('next','flip')}</button>
+      <button class="item" style="width:100%;text-align:start;color:var(--red)" data-a="signout"><div class="chip-i red">${ic('out')}</div><div class="grow t">${L('Sign out','تسجيل الخروج')}</div></button>
+    </div>
+    <p class="sub center" style="margin-top:16px">EVAPP · NeighCharge v1.0 · ${L('Egypt','مصر')}</p>
+  </div>`;
+
+/* ---------- Host mode ---------- */
+V.hfeed=()=>{
+  const H=S.host;
+  return `<div class="hdr"><div class="grow"><h1>${L('Good evening, Ahmed','مساء الخير يا أحمد')}</h1><div class="sub">${L('Nasr City, Cairo · Host since 2026','مدينة نصر، القاهرة · مضيف منذ ٢٠٢٦')}</div></div><button class="iconbtn" data-a="soon" aria-label="notifications">${ic('bell')}</button></div>
+  <div class="pad" style="padding-top:0">
+    <div class="hero"><div class="k">${L("This month's earnings",'أرباح هذا الشهر')}</div><div class="big num">${egp(H.earnings,0)}</div>
+      <div style="color:var(--amber);font-size:12px;font-weight:600">↑ ${L('12% vs. last month · Next payout Aug 15','١٢٪ عن الشهر الماضي · الدفعة القادمة ١٥ أغسطس')}</div></div>
+    <h2 class="sec">${L('Live energy feed','البث المباشر للطاقة')} <span class="pulse" style="color:var(--leaf)">●</span></h2>
+    <div class="stats">
+      <div class="stat">${ic('sun')}<b id="hSolar" class="num">${n(H.solar.toFixed(1))} kW</b><span>${L('Solar now','الطاقة الآن')}</span></div>
+      <div class="stat">${ic('batt')}<b id="hSoc" class="num">${n(H.soc)}%</b><span>${L('Battery SoC','شحن البطارية')}</span></div>
+      <div class="stat">${ic('zap')}<b id="hShared" class="num">${n(H.shared.toFixed(1))} kWh</b><span>${L('Shared today','تمت مشاركته اليوم')}</span></div>
+    </div>
+    <h2 class="sec">${L('Active session','الجلسة النشطة')}</h2>
+    <div class="card row"><div class="chip-i">${ic('car')}</div><div class="grow"><div class="t">${L('Karim H.','كريم ح.')}</div><div class="sub" id="hLeft">${L(`${H.sessLeft} min left`,`متبقي ${n(H.sessLeft)} دقيقة`)}</div></div><b class="pos">+${egp(22,0)}</b></div>
+    <button class="card row" style="width:100%;margin-top:10px;text-align:start;background:#FFF8EC;border-color:#F6DDB2" data-tab="hservice"><div class="chip-i amber">${ic('tool')}</div><div class="grow t">${L('Predictive alert: inverter check due','تنبيه تنبؤي: موعد فحص العاكس')}</div>${ic('next','flip')}</button>
+    <div class="row" style="margin-top:14px"><div class="grow"><div class="t">${L('Accepting bookings','استقبال الحجوزات')}</div><div class="sub">${H.accepting?L('Your listing is visible on the map','إعلانك ظاهر على الخريطة'):L('Paused — hidden from drivers','متوقف — مخفي عن السائقين')}</div></div><button class="toggle ${H.accepting?'on':''}" data-a="accept" aria-label="accepting"></button></div>
+  </div>`;
+};
+V.hsessions=()=>`${hdr(L('Sessions','الجلسات'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    <h2 class="sec" style="margin-top:0">${L('Today','اليوم')}</h2>
+    <div class="card list">${[[['Karim H.','كريم ح.'],['Now · charging','الآن · يشحن'],22,'act'],[['Driver booking','حجز سائق'],['6:30 PM · Confirmed','٦:٣٠ م · مؤكد'],18,'cal'],[['Sara M.','سارة م.'],['2:10 PM · Completed','٢:١٠ م · مكتمل'],31.2,'ok']].map(([w,d,a,i])=>`<div class="item"><div class="chip-i">${ic(i)}</div><div class="grow"><div class="t">${nm(w)}</div><div class="sub">${nm(d)}</div></div><b class="pos">+${egp(a)}</b></div>`).join('')}</div>
+    <h2 class="sec">${L('This week','هذا الأسبوع')}</h2>
+    <div class="card"><div class="spark">${[40,62,55,80,70,95,58].map((v,i)=>`<div class="${i===5?'on':''}" style="height:${v}%"><span>${L(['M','T','W','T','F','S','S'][i],['ن','ث','ر','خ','ج','س','ح'][i])}</span></div>`).join('')}</div><div style="height:22px"></div>
+      <div class="row"><span class="grow sub">${L('Sessions this week','جلسات هذا الأسبوع')}</span><b>${n(27)}</b></div></div>
+  </div>`;
+V.hpayouts=()=>`${hdr(L('Payouts','المدفوعات'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    <div class="hero"><div class="k">${L('Next payout · Aug 15','الدفعة القادمة · ١٥ أغسطس')}</div><div class="big num">${egp(4620,0)}</div><div style="font-size:12px;opacity:.8">${L('To InstaPay · •••• 4821','إلى إنستاباي · •••• ٤٨٢١')}</div></div>
+    <h2 class="sec">${L('History','السجل')}</h2>
+    <div class="card list">${S.host.paid.map(p=>`<div class="item"><div class="chip-i">${ic('dollar')}</div><div class="grow"><div class="t">${nm(p.m)}</div><div class="sub">${L('Commission deducted · 15%','بعد خصم العمولة ١٥٪')}</div></div><div style="text-align:end"><div class="amt">${egp(p.a,0)}</div><span class="badge ${p.st==='paid'?'':'amber'}">${p.st==='paid'?L('Paid','مدفوع'):L('Scheduled','مجدول')}</span></div></div>`).join('')}</div>
+  </div>`;
+V.hservice=()=>{
+  const H=S.host;
+  return `${hdr(L('My Listing','إعلاني'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    <div class="card"><div class="row"><div class="grow"><div class="sub">${L('Price per kWh','السعر لكل ك.و.س')}</div><div class="t" style="font-size:20px">${egp(H.price)}</div></div>
+      <div class="stepper"><button data-a="price" data-k="-0.5" aria-label="decrease">−</button><button data-a="price" data-k="0.5" aria-label="increase">+</button></div></div>
+      <div class="row" style="margin-top:12px"><span class="grow sub">${L('Status','الحالة')}</span><span class="badge ${H.accepting?'':'gray'}">${H.accepting?L('Accepting bookings','يستقبل الحجوزات'):L('Paused','متوقف')}</span></div></div>
+    <h2 class="sec">${L('Trust score','درجة الثقة')}</h2>
+    <div class="card row"><div class="chip-i" style="width:64px;height:64px;font-size:22px;font-weight:800">${n('4.9')}</div><div class="grow"><div class="t">${L('212 sessions · 0 disputes','٢١٢ جلسة · ٠ نزاعات')}</div><div class="sub">${L('National ID-verified · Response rate 98%','موثّق بالرقم القومي · معدل الاستجابة ٩٨٪')}</div></div></div>
+    <h2 class="sec">${L('Maintenance plan','خطة الصيانة')}</h2>
+    <div class="card list">
+      <div class="item"><div class="chip-i">${ic('tool')}</div><div class="grow"><div class="t">${L('Standard','قياسي')}</div><div class="sub">${L('Renews Nov 2026','يتجدد نوفمبر ٢٠٢٦')}</div></div><b>${L('EGP 12.6k/yr','١٢٫٦ ألف ج.م/سنة')}</b></div>
+      <div class="item"><div class="chip-i">${ic('pkg')}</div><div class="grow"><div class="t">${L('Parts','القطع')}</div><div class="sub">${L('Inverter fuse','فيوز العاكس')}</div></div><span class="badge">${L('Tracked','قيد التتبع')}</span></div>
+    </div>
+    <div style="height:14px"></div>
+    <button class="btn" data-a="bookTech">${ic('tool')} ${L('Book inverter check','احجز فحص العاكس')}</button>
+  </div>`;
+};
+V.hprofile=()=>`${hdr(L('Profile','حسابي'),{noBack:true})}
+  <div class="pad" style="padding-top:0">
+    <div class="card row"><div class="chip-i amber" style="width:56px;height:56px;font-weight:800;font-size:18px">AR</div><div class="grow"><div class="t" style="font-size:16px">${L('Ahmed R. · Solar Host','أحمد ر. · مضيف')}</div><div class="sub">${L('5 kW rooftop PV · 7.4 kW charger','ألواح ٥ ك.و · شاحن ٧٫٤ ك.و')}</div></div></div>
+    <div style="height:12px"></div>
+    <div class="card list">
+      <button class="item" style="width:100%;text-align:start" data-a="lang"><div class="chip-i">${ic('globe')}</div><div class="grow t">${L('Language','اللغة')}</div><span class="badge gray">${L('English','العربية')}</span></button>
+      <button class="item" style="width:100%;text-align:start" data-a="driverMode"><div class="chip-i">${ic('car')}</div><div class="grow t">${L('Switch to Driver mode','التحويل إلى وضع السائق')}</div>${ic('swap')}</button>
+      <button class="item" style="width:100%;text-align:start;color:var(--red)" data-a="signout"><div class="chip-i red">${ic('out')}</div><div class="grow t">${L('Sign out','تسجيل الخروج')}</div></button>
+    </div>
+  </div>`;
+
+/* ---------- Actions ---------- */
+const A={
+ back, lang(){S.lang=S.lang==='en'?'ar':'en';render()},
+ demoFill(){S.nid='29801011234567';S.phone='01012345678';render()},
+ onbNext(){
+  const id=$('#nid').value.trim(),ph=$('#mob').value.trim();S.nid=id;S.phone=ph;
+  const e=$('#onbErr');
+  if(!/^\d{14}$/.test(id)) return e.textContent=L('National ID must be 14 digits','الرقم القومي يجب أن يكون ١٤ رقماً');
+  if(!/^01[0125]\d{8}$/.test(ph)) return e.textContent=L('Enter a valid Egyptian mobile (01xxxxxxxxx)','أدخل رقم موبايل مصري صحيح');
+  S.onbStep=2;render(true);setTimeout(()=>{const f=document.querySelector('[data-otp="0"]');f&&f.focus()},100);
+ },
+ onbBack(){S.onbStep=1;render(true)},
+ verify(){
+  const code=[...document.querySelectorAll('[data-otp]')].map(i=>i.value).join('');
+  if(!/^\d{4}$/.test(code)) return $('#otpErr').textContent=L('Enter the 4-digit code','أدخل الرمز المكون من ٤ أرقام');
+  S.authed=true;S.stack=['map'];render(true);toast(L('Welcome to EVAPP — identity verified','مرحباً بك في EVAPP — تم التحقق من الهوية'));
+ },
+ selPin(el){S.sel=el.dataset.k;render()},
+ filter(el){S.filter=el.dataset.k;render()},
+ filterSheet(){sheet(`<h3 style="margin:0 0 12px">${L('Filters','الفلاتر')}</h3>
+   ${[['all',['All providers','جميع المزودين']],['host',['Solar hosts only','المضيفون فقط']],['station',['Station chargers','محطات الشحن']],['van',['Mobile vans','الشاحنات المتنقلة']]].map(([k,l])=>`<button class="opt ${S.filter===k?'on':''}" data-a="filterPick" data-k="${k}"><div class="grow t">${nm(l)}</div><span class="check">${ic('check')}</span></button>`).join('')}`)},
+ filterPick(el){S.filter=el.dataset.k;closeSheet();render()},
+ directions(){toast(L('Opening navigation…','جارٍ فتح الملاحة…'))},
+ slot(el){S.slot=el.dataset.k;render()},
+ book(){
+  const h=HOSTS[S.sel],est=h.avail*h.price;
+  if(S.wallet<est){toast(L('Insufficient balance — please top up','الرصيد غير كافٍ — يرجى الشحن'));return A.topupSheet()}
+  S.bookings.push({host:S.sel,slot:S.slot,est});S.stack=['bookings','confirm'];render(true);
+ },
+ bseg(el){S.bookSeg=el.dataset.k;render()},
+ cancelBk(el){S.bookings.splice(+el.dataset.i,1);render();toast(L('Booking cancelled — no fee charged','تم إلغاء الحجز — بدون رسوم'))},
+ startSess(el){
+  const b=S.bookings.splice(+el.dataset.i,1)[0];const h=HOSTS[b.host];
+  S.session={host:b.host,price:h.price,t:0,kwh:0,kw:2.9,pct:24};go('session');
+ },
+ stopSess(){
+  const s=S.session;const cost=+(s.kwh*s.price).toFixed(2);
+  S.wallet-=cost;S.points+=20;
+  S.activity.unshift({t:['Charging','شحن'],d:['Today','اليوم'],a:-cost,i:'zap'});
+  S.past.unshift({host:s.host,when:['Today','اليوم'],kwh:+s.kwh.toFixed(1),cost});
+  S.lastSummary={host:s.host,kwh:s.kwh,cost,co2:s.kwh*0.49};S.session=null;S.rating=0;
+  S.stack=['bookings','summary'];render(true);
+ },
+ rate(el){S.rating=+el.dataset.k;render();toast(L('Thanks! +10 pts for your review','شكراً! +١٠ نقاط لتقييمك'));if(!S._rated){S.points+=10;S._rated=true}},
+ doneSummary(){S._rated=false;tab('bookings')},
+ topupSheet(){sheet(`<h3 style="margin:0 0 4px">${L('Top up wallet','شحن المحفظة')}</h3><p class="sub" style="margin-top:0">${L('via','عبر')} ${S.rail}</p>
+   <div class="grid2">${[100,200,500,1000].map(v=>`<button class="pill" style="min-height:52px;font-size:15px" data-a="topup" data-k="${v}">${egp(v,0)}</button>`).join('')}</div>
+   <div style="height:12px"></div><div class="pills">${['InstaPay','Meeza','Fawry','Vodafone Cash'].map(r=>`<button class="pill ${S.rail===r?'on':''}" data-a="railSheet" data-k="${r}">${r}</button>`).join('')}</div>`)},
+ railSheet(el){S.rail=el.dataset.k;A.topupSheet()},
+ topup(el){const v=+el.dataset.k;S.wallet+=v;S.activity.unshift({t:['Top-up','شحن رصيد'],d:['Just now','الآن'],a:v,i:'card'});closeSheet();render();toast(L(`EGP ${v} added via ${S.rail}`,`تمت إضافة ${n(v)} ج.م عبر ${S.rail}`))},
+ rail(el){S.rail=el.dataset.k;render()},
+ rcat(el){S.rewardCat=el.dataset.k;render()},
+ redeem(el){const r=REWARDS[+el.dataset.k];if(S.points<r.p)return;S.points-=r.p;S.activity.unshift({t:['Redemption','استبدال نقاط'],d:['Just now','الآن'],a:0,i:'gift'});render();toast(L(`Redeemed: ${r.t[0]}`,`تم الاستبدال: ${r.t[1]}`))},
+ refer(){try{navigator.clipboard&&navigator.clipboard.writeText('https://evapp.eg/r/MOHAMAD150')}catch(e){}toast(L('Referral link copied — +150 pts per friend','تم نسخ رابط الدعوة — +١٥٠ نقطة لكل صديق'))},
+ postSheet(){sheet(`<h3 style="margin:0 0 12px">${L('New post','منشور جديد')}</h3><textarea id="postTxt" placeholder="${L('Share with Nasr City EV Owners…','شارك مع ملاك السيارات الكهربائية بمدينة نصر…')}"></textarea><div style="height:12px"></div><button class="btn" data-a="post">${L('Post','نشر')}</button>`);setTimeout(()=>$('#postTxt').focus(),250)},
+ post(){const v=$('#postTxt').value.trim();if(!v)return;S.posts.unshift({who:['You','أنت'],ago:['now','الآن'],i:'user',txt:[v,v],likes:0});closeSheet();render()},
+ like(el){S.posts[+el.dataset.i].likes++;render()},
+ reply(){toast(L('Replies open in the full thread','الردود تُفتح في الموضوع الكامل'))},
+ cfg(el){S.cfgTier=+el.dataset.k;render()},
+ fin(el){S.finance=el.dataset.k;render()},
+ subsidy(){toast(L('Eligible: pilot subsidy up to 20% · Cairo/Giza','مؤهل: دعم تجريبي حتى ٢٠٪ · القاهرة/الجيزة'))},
+ startRoute(){toast(L('Route started — charge stop added','بدأ المسار — تمت إضافة محطة الشحن'))},
+ sos(){S.sos={stage:0};render();S.activity.unshift({t:['Van call','طلب شاحنة'],d:['Just now','الآن'],a:0,i:'truck'});
+   setTimeout(()=>{if(S.sos){S.sos.stage=1;if(cur()==='sos')render()}},2500);setTimeout(()=>{if(S.sos){S.sos.stage=2;if(cur()==='sos')render()}},6000)},
+ cancelSos(){S.sos=null;S.activity.shift();render();toast(L('Request cancelled','تم إلغاء الطلب'))},
+ soon(){toast(L('Available in the next release','متاح في الإصدار القادم'))},
+ notif(){S.notif=S.notif===false;render()},
+ hostMode(){S.mode='host';S.stack=['hfeed'];render(true);toast(L('Host mode','وضع المضيف'))},
+ driverMode(){S.mode='driver';S.stack=['map'];render(true)},
+ accept(){S.host.accepting=!S.host.accepting;render()},
+ price(el){S.host.price=Math.max(3,Math.min(12,S.host.price+ +el.dataset.k));HOSTS.ahmed.price=S.host.price;render()},
+ bookTech(){toast(L('Technician booked · Thu 10:00 AM','تم حجز الفني · الخميس ١٠:٠٠ ص'))},
+ signout(){S.authed=false;S.onbStep=1;S.mode='driver';S.stack=['map'];render(true)}
+};
+
+/* ---------- Events ---------- */
+document.addEventListener('click',e=>{
+  if(e.target.id==='scrim') return closeSheet();
+  const el=e.target.closest('[data-a],[data-go],[data-tab]'); if(!el||el.disabled) return;
+  if(el.dataset.tab){closeSheet();return tab(el.dataset.tab)}
+  if(el.dataset.go){closeSheet();return go(el.dataset.go)}
+  const f=A[el.dataset.a]; f&&f(el);
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){S.q=e.target.value;const p=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(p,p)}
+  if(e.target.id==='mq'){S.mq=e.target.value;const p=e.target.selectionStart;render();const q=$('#mq');q.focus();q.setSelectionRange(p,p)}
+  if(e.target.dataset.otp!==undefined){e.target.value=e.target.value.replace(/\D/g,'');const nx=document.querySelector(`[data-otp="${+e.target.dataset.otp+1}"]`);if(e.target.value&&nx)nx.focus()}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Backspace'&&e.target.dataset&&e.target.dataset.otp!==undefined&&!e.target.value){const pv=document.querySelector(`[data-otp="${+e.target.dataset.otp-1}"]`);pv&&pv.focus()}
+  if(e.key==='Enter'&&!S.authed){S.onbStep===1?A.onbNext():A.verify()}
+  if(e.key==='Escape')closeSheet();
+});
+
+/* ---------- Live telemetry simulation (1 s tick) ---------- */
+setInterval(()=>{
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  const s=S.session;
+  if(s){
+    s.t+=1; s.kw=Math.max(2.2,Math.min(3.4,s.kw+(Math.random()-.5)*.2));
+    s.kwh+=s.kw/3600*60;            // demo speed: 60x real time
+    s.pct=Math.min(100,24+s.kwh*1.6);
+    set('sPct',n(Math.round(s.pct))+'%'); set('sTime',fmtT(s.t)+' '+L('elapsed','منقضي'));
+    set('sKwh',n(s.kwh.toFixed(2))); set('sKw',n(s.kw.toFixed(1))+' kW');
+    set('sCost',n(fx(s.kwh*s.price))); set('sCo2',n((s.kwh*.49).toFixed(1)));
+    set('bkLive',`${n(s.kwh.toFixed(1))} kWh · ${egp(s.kwh*s.price)}`);
+    const arc=document.getElementById('ringArc'); if(arc){const C=2*Math.PI*80;arc.setAttribute('stroke-dashoffset',C*(1-s.pct/100))}
+    if(s.pct>=100) A.stopSess();
+  }
+  if(S.authed && (cur()==='host')){const h=HOSTS[S.sel];if(h.solar){h.solar=Math.max(.5,Math.min(5,h.solar+(Math.random()-.5)*.15));set('lfSolar',n(h.solar.toFixed(1))+' kW')}}
+  if(S.mode==='host'){const H=S.host;H.solar=Math.max(1,Math.min(5,H.solar+(Math.random()-.5)*.15));H.shared+=.002;
+    set('hSolar',n(H.solar.toFixed(1))+' kW');set('hShared',n(H.shared.toFixed(1))+' kWh')}
+},1000);
+setInterval(()=>{if(S.mode==='host'&&S.host.sessLeft>1){S.host.sessLeft--;const el=document.getElementById('hLeft');if(el)el.textContent=L(`${S.host.sessLeft} min left`,`متبقي ${n(S.host.sessLeft)} دقيقة`)}},60000);
+
+render();
+</script>
+</body>
+</html>
